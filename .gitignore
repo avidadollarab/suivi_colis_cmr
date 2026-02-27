@@ -1,0 +1,16 @@
+*.db
+*.sqlite
+__pycache__/
+*.pyc
+.env
+*.log
+venv/
+
+# Anciens templates à la racine (remplacés par templates/)
+/base*.html
+/dashboard.html
+/detail_colis.html
+/index.html
+/login.html
+/nouveau_colis.html
+/suivre.html

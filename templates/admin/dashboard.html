@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.3rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        border-top: 4px solid #007a3d;
+    }
+    .stat-card.orange  { border-color: #f59e0b; }
+    .stat-card.blue    { border-color: #3182ce; }
+    .stat-card.purple  { border-color: #7c3aed; }
+    .stat-card.teal    { border-color: #0d9488; }
+    .stat-card.green   { border-color: #10b981; }
+    .stat-card.red     { border-color: #ef4444; }
+    .stat-chiffre { font-size: 2.2rem; font-weight: 800; color: #1a202c; }
+    .stat-label   { font-size: 0.82rem; color: #718096; margin-top: 0.2rem; }
+
+    .actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .actions-bar h2 { font-size: 1.2rem; }
+
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        overflow: hidden;
+    }
+    .numero-suivi {
+        font-family: monospace;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #2d3748;
+    }
+    td a { color: #007a3d; text-decoration: none; font-weight: 600; }
+    td a:hover { text-decoration: underline; }
+    .paye-oui { color: #065f46; font-weight: 600; }
+    .paye-non { color: #991b1b; font-size: 0.85rem; }
+
+    @media (max-width: 800px) {
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <h1 style="font-size:1.6rem;">⚙️ Tableau de bord</h1>
+    <span style="color:#718096; font-size:0.9rem;">👤 {{ session.agent_nom }}</span>
+</div>
+
+<!-- STATISTIQUES -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-chiffre">{{ stats.total }}</div>
+        <div class="stat-label">📦 Total colis</div>
+    </div>
+    <div class="stat-card orange">
+        <div class="stat-chiffre">{{ stats.ramasse }}</div>
+        <div class="stat-label">📦 Ramassés</div>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-chiffre">{{ stats.en_conteneur }}</div>
+        <div class="stat-label">🏭 Au conteneur</div>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-chiffre">{{ stats.parti }}</div>
+        <div class="stat-label">🚢 En mer</div>
+    </div>
+    <div class="stat-card teal">
+        <div class="stat-chiffre">{{ stats.arrive }}</div>
+        <div class="stat-label">⚓ Arrivés</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-chiffre">{{ stats.livre }}</div>
+        <div class="stat-label">✅ Livrés</div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-chiffre">{{ stats.non_paye }}</div>
+        <div class="stat-label">💳 Non payés</div>
+    </div>
+</div>
+
+<!-- LISTE DES COLIS -->
+<div class="actions-bar">
+    <h2>📋 Liste des colis</h2>
+    <a href="{{ url_for('nouveau_colis') }}" class="btn btn-green">➕ Nouveau colis</a>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>N° Suivi</th>
+                <th>Client</th>
+                <th>Description</th>
+                <th>Destination</th>
+                <th>Statut</th>
+                <th>Paiement</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in colis %}
+            <tr>
+                <td><span class="numero-suivi">{{ c.numero_suivi }}</span></td>
+                <td>{{ c.client_prenom }} {{ c.client_nom }}</td>
+                <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                    {{ c.description }}
+                </td>
+                <td>🇨🇲 {{ c.dest_ville }}</td>
+                <td>
+                    <span class="badge badge-{{ couleurs[c.statut] }}">
+                        {{ labels[c.statut] }}
+                    </span>
+                </td>
+                <td>
+                    {% if c.est_paye %}
+                        <span class="paye-oui">✅ Payé</span>
+                    {% else %}
+                        <span class="paye-non">❌ En attente</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('detail_colis', numero_suivi=c.numero_suivi) }}" class="btn btn-blue btn-sm">Voir</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align:center; color:#718096; padding:2rem;">
+                    Aucun colis enregistré. <a href="{{ url_for('nouveau_colis') }}">Créez le premier !</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

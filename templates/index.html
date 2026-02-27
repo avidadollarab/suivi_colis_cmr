@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Suivi Colis France–Cameroun{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        background: linear-gradient(135deg, #007a3d 0%, #004d26 60%, #003d1f 100%);
+        color: white;
+        text-align: center;
+        padding: 4rem 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero::before {
+        content: "🇫🇷  ✈️  🇨🇲";
+        position: absolute;
+        font-size: 4rem;
+        opacity: 0.08;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        white-space: nowrap;
+        letter-spacing: 1rem;
+    }
+    .hero h1 { font-size: 2.2rem; margin-bottom: 0.8rem; }
+    .hero p  { font-size: 1.1rem; opacity: 0.9; margin-bottom: 2rem; }
+
+    .search-bar {
+        display: flex;
+        max-width: 550px;
+        margin: 0 auto;
+        gap: 0.5rem;
+    }
+    .search-bar input {
+        flex: 1;
+        padding: 0.9rem 1.2rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .search-bar button {
+        padding: 0.9rem 1.8rem;
+        background: #fbbf24;
+        color: #1a202c;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .search-bar button:hover { background: #f59e0b; }
+
+    .etapes {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .etape {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+        color: #4a5568;
+        font-weight: 500;
+    }
+    .etape .icon { font-size: 1.8rem; }
+    .etape-arrow { color: #cbd5e0; font-size: 1.5rem; }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.2rem;
+        margin-bottom: 2rem;
+    }
+    .info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .info-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .info-card h3 { font-size: 1rem; margin-bottom: 0.4rem; color: #1a202c; }
+    .info-card p  { font-size: 0.87rem; color: #718096; }
+    @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>📦 Suivez votre colis en temps réel</h1>
+    <p>De la France jusqu'à votre porte au Cameroun</p>
+    <form action="{{ url_for('suivre') }}" method="GET" class="search-bar">
+        <input type="text" name="numero" placeholder="Ex: CMR-2024-00147" required>
+        <button type="submit">🔍 Suivre</button>
+    </form>
+</div>
+
+<div class="etapes">
+    <div class="etape"><span class="icon">🏠</span> Ramassage</div>
+    <div class="etape-arrow">→</div>
+    <div class="etape"><span class="icon">🏭</span> Conteneur</div>
+    <div class="etape-arrow">→</div>
+    <div class="etape"><span class="icon">🚢</span> En mer</div>
+    <div class="etape-arrow">→</div>
+    <div class="etape"><span class="icon">⚓</span> Port de Douala</div>
+    <div class="etape-arrow">→</div>
+    <div class="etape"><span class="icon">✅</span> Livré</div>
+</div>
+
+<div class="info-grid">
+    <div class="info-card">
+        <div class="icon">🔢</div>
+        <h3>Votre numéro de suivi</h3>
+        <p>Reçu par SMS ou email lors du ramassage. Format : CMR-AAAA-NNNNN</p>
+    </div>
+    <div class="info-card">
+        <div class="icon">📍</div>
+        <h3>Suivi à chaque étape</h3>
+        <p>Notre équipe met à jour le statut de votre colis à chaque étape clé du trajet</p>
+    </div>
+    <div class="info-card">
+        <div class="icon">📞</div>
+        <h3>Besoin d'aide ?</h3>
+        <p>Contactez-nous au <strong>+33 6 XX XX XX XX</strong><br>ou par WhatsApp</p>
+    </div>
+</div>
+{% endblock %}

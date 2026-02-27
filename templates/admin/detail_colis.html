@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}Colis {{ numero }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .header-colis {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        margin-bottom: 1.5rem;
+    }
+    .numero-grand {
+        font-family: monospace;
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #007a3d;
+    }
+    .statut-actuel { font-size: 1.1rem; margin-top: 0.3rem; }
+
+    .update-form {
+        background: #f0fdf4;
+        border: 2px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .update-form h3 { color: #065f46; margin-bottom: 1rem; }
+    .update-form .grid-2 { align-items: end; }
+    .update-form .form-group select,
+    .update-form .form-group input,
+    .update-form .form-group textarea {
+        background: white;
+    }
+
+    .info-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .info-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    .info-section h3 { font-size: 1rem; color: #007a3d; margin-bottom: 1rem; font-weight: 700; border-bottom: 1px solid #d1fae5; padding-bottom: 0.4rem; }
+    .info-ligne { display: flex; justify-content: space-between; padding: 0.4rem 0; font-size: 0.9rem; border-bottom: 1px solid #f0f4f8; }
+    .info-ligne:last-child { border: none; }
+    .info-ligne .lbl { color: #718096; }
+    .info-ligne .val { font-weight: 600; }
+
+    .historique-admin {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    .historique-admin h3 { font-size: 1rem; color: #007a3d; margin-bottom: 1rem; font-weight: 700; }
+    .histo-row { display: flex; align-items: flex-start; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid #f0f4f8; }
+    .histo-row:last-child { border: none; }
+    .histo-dot { width: 10px; height: 10px; border-radius: 50%; background: #007a3d; flex-shrink: 0; margin-top: 5px; }
+    .histo-content { flex: 1; font-size: 0.88rem; }
+    .histo-content strong { display: block; }
+    .histo-content .details { color: #718096; font-size: 0.82rem; }
+    .histo-time { font-size: 0.78rem; color: #a0aec0; flex-shrink: 0; }
+
+    .paiement-bloc {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 700px) { .info-sections { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+{% set c = resultat.colis %}
+
+<div style="display:flex; gap:1rem; align-items:center; margin-bottom:1.5rem;">
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-gray btn-sm">← Retour</a>
+    <h1 style="font-size:1.3rem;">Détail du colis</h1>
+</div>
+
+<!-- EN-TÊTE COLIS -->
+<div class="header-colis">
+    <div>
+        <div class="numero-grand">{{ c.numero_suivi }}</div>
+        <div class="statut-actuel">
+            <span class="badge badge-{{ resultat.couleurs[c.statut] }}">
+                {{ resultat.labels[c.statut] }}
+            </span>
+        </div>
+    </div>
+    <div style="text-align:right; color:#718096; font-size:0.88rem;">
+        <div>📅 Enregistré le {{ c.date_creation[:10] }}</div>
+        <div>👤 {{ c.client_prenom }} {{ c.client_nom }} → {{ c.dest_ville }}</div>
+        <div style="margin-top:0.5rem;">
+            <a href="{{ url_for('suivre') }}?numero={{ c.numero_suivi }}" target="_blank" class="btn btn-blue btn-sm">
+                🔍 Vue client
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- PAIEMENT -->
+<div class="paiement-bloc">
+    <div>
+        💳 <strong>Paiement :</strong>
+        {% if c.prix_total %}{{ c.prix_total }} €{% else %}Non renseigné{% endif %}
+        —
+        {% if c.est_paye %}
+            <span style="color:#065f46; font-weight:700;">✅ Payé</span>
+        {% else %}
+            <span style="color:#991b1b; font-weight:700;">❌ Non payé</span>
+        {% endif %}
+    </div>
+    {% if not c.est_paye %}
+    <form method="POST" action="{{ url_for('marquer_paiement', numero_suivi=c.numero_suivi) }}">
+        <button type="submit" class="btn btn-green btn-sm">Marquer comme payé</button>
+    </form>
+    {% endif %}
+</div>
+
+<!-- FORMULAIRE DE MISE À JOUR DU STATUT -->
+<div class="update-form">
+    <h3>🔄 Mettre à jour le statut</h3>
+    <form method="POST" action="{{ url_for('changer_statut', numero_suivi=c.numero_suivi) }}">
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Nouveau statut *</label>
+                <select name="statut" required>
+                    {% for s in resultat.statuts_valides %}
+                    <option value="{{ s }}" {% if s == c.statut %}selected{% endif %}>
+                        {{ resultat.labels[s] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Localisation</label>
+                <input type="text" name="localisation" placeholder="Ex: Port du Havre, Douala...">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Commentaire</label>
+            <input type="text" name="commentaire" placeholder="Ex: Chargé sur le navire MSC BRILLIANT">
+        </div>
+        <button type="submit" class="btn btn-green">Mettre à jour</button>
+    </form>
+</div>
+
+<!-- INFOS DÉTAILLÉES -->
+<div class="info-sections">
+    <div class="info-section">
+        <h3>📦 Colis</h3>
+        <div class="info-ligne"><span class="lbl">Description</span><span class="val">{{ c.description }}</span></div>
+        {% if c.poids_kg %}<div class="info-ligne"><span class="lbl">Poids</span><span class="val">{{ c.poids_kg }} kg</span></div>{% endif %}
+        <div class="info-ligne"><span class="lbl">Nb. cartons</span><span class="val">{{ c.nombre_pieces }}</span></div>
+        {% if c.notes %}<div class="info-ligne"><span class="lbl">Notes</span><span class="val">{{ c.notes }}</span></div>{% endif %}
+        <div class="info-ligne"><span class="lbl">Ramassé le</span><span class="val">{{ (c.date_ramassage or '-')[:10] }}</span></div>
+        {% if c.date_conteneur %}<div class="info-ligne"><span class="lbl">Conteneur</span><span class="val">{{ c.date_conteneur[:10] }}</span></div>{% endif %}
+        {% if c.date_depart %}<div class="info-ligne"><span class="lbl">Départ</span><span class="val">{{ c.date_depart[:10] }}</span></div>{% endif %}
+        {% if c.date_arrivee %}<div class="info-ligne"><span class="lbl">Arrivée</span><span class="val">{{ c.date_arrivee[:10] }}</span></div>{% endif %}
+        {% if c.date_livraison %}<div class="info-ligne"><span class="lbl">Livré le</span><span class="val">{{ c.date_livraison[:10] }}</span></div>{% endif %}
+    </div>
+
+    <div>
+        <div class="info-section" style="margin-bottom:1rem;">
+            <h3>🇫🇷 Expéditeur</h3>
+            <div class="info-ligne"><span class="lbl">Nom</span><span class="val">{{ c.client_prenom }} {{ c.client_nom }}</span></div>
+            <div class="info-ligne"><span class="lbl">Tél.</span><span class="val">{{ c.client_tel }}</span></div>
+        </div>
+        <div class="info-section">
+            <h3>🇨🇲 Destinataire</h3>
+            <div class="info-ligne"><span class="lbl">Nom</span><span class="val">{{ c.dest_prenom }} {{ c.dest_nom }}</span></div>
+            <div class="info-ligne"><span class="lbl">Tél.</span><span class="val">{{ c.dest_tel }}</span></div>
+            <div class="info-ligne"><span class="lbl">Ville</span><span class="val">{{ c.dest_ville }}</span></div>
+            {% if c.dest_quartier %}<div class="info-ligne"><span class="lbl">Quartier</span><span class="val">{{ c.dest_quartier }}</span></div>{% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- HISTORIQUE -->
+<div class="historique-admin">
+    <h3>📋 Historique complet</h3>
+    {% for h in resultat.historique | reverse %}
+    <div class="histo-row">
+        <div class="histo-dot"></div>
+        <div class="histo-content">
+            <strong>{{ resultat.labels[h.statut] }}</strong>
+            <div class="details">
+                {% if h.commentaire %}{{ h.commentaire }}{% endif %}
+                {% if h.localisation %} · 📍 {{ h.localisation }}{% endif %}
+                {% if h.agent %} · 👤 {{ h.agent }}{% endif %}
+            </div>
+        </div>
+        <div class="histo-time">{{ h.date_action[:16] | replace('T', ' ') }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

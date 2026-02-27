@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Suivi Colis CMR{% endblock %}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #2d3748;
+            min-height: 100vh;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: linear-gradient(135deg, #007a3d, #004d26);
+            color: white;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .navbar .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+        .navbar .logo span { font-size: 1.6rem; }
+        .navbar nav a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        .navbar nav a:hover { color: white; }
+
+        /* CONTENU */
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* CARTES */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1.2rem;
+            color: #1a202c;
+            border-bottom: 2px solid #007a3d;
+            padding-bottom: 0.5rem;
+        }
+
+        /* FORMULAIRES */
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.6rem 0.9rem;
+            border: 1.5px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            background: #fafafa;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007a3d;
+            background: white;
+        }
+
+        /* BOUTONS */
+        .btn {
+            padding: 0.6rem 1.4rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        .btn-green  { background: #007a3d; color: white; }
+        .btn-green:hover  { background: #005c2e; }
+        .btn-blue   { background: #3182ce; color: white; }
+        .btn-blue:hover   { background: #2c5282; }
+        .btn-orange { background: #dd6b20; color: white; }
+        .btn-orange:hover { background: #c05621; }
+        .btn-gray   { background: #718096; color: white; }
+        .btn-gray:hover   { background: #4a5568; }
+        .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.85rem; }
+
+        /* BADGES DE STATUT */
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+        .badge-orange  { background: #fef3c7; color: #92400e; }
+        .badge-blue    { background: #dbeafe; color: #1e40af; }
+        .badge-purple  { background: #ede9fe; color: #5b21b6; }
+        .badge-teal    { background: #ccfbf1; color: #115e59; }
+        .badge-green   { background: #d1fae5; color: #065f46; }
+
+        /* ALERTES FLASH */
+        .flash-messages { margin-bottom: 1rem; }
+        .alert {
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+        .alert-danger  { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+        .alert-info    { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+
+        /* GRILLE */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+        @media (max-width: 700px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        /* TABLEAU */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f7fafc; font-weight: 600; font-size: 0.88rem; color: #4a5568; }
+        tr:hover td { background: #f7fafc; }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+            font-size: 0.85rem;
+            margin-top: 3rem;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="logo">
+            <span>📦</span> SuiviColis CMR
+        </a>
+        <nav>
+            <a href="{{ url_for('index') }}">🏠 Accueil</a>
+            <a href="{{ url_for('suivre') }}">🔍 Suivre un colis</a>
+            {% if session.agent_id %}
+                <a href="{{ url_for('admin_dashboard') }}">⚙️ Admin</a>
+                <a href="{{ url_for('logout') }}">🚪 Déconnexion ({{ session.agent_nom }})</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">🔐 Équipe</a>
+            {% endif %}
+        </nav>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        🇫🇷 → 🇨🇲 &nbsp; Système de suivi de colis France–Cameroun
+    </footer>
+</body>
+</html>
