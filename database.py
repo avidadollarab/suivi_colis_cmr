@@ -30,8 +30,14 @@ if DATABASE_URL:
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     USE_POSTGRES = True
-    import psycopg
-    print("Connecte a PostgreSQL (production)")
+    try:
+        import psycopg2
+        import psycopg2.extras
+        print("Connecte a PostgreSQL via psycopg2")
+    except ImportError:
+        raise RuntimeError(
+            "psycopg2 non installe. Ajoutez psycopg2-binary==2.9.6 dans requirements.txt"
+        )
 else:
     USE_POSTGRES = False
     DB_SQLITE = "suivi_colis.db"
@@ -43,7 +49,7 @@ else:
 # -------------------------------------------------------
 def get_connection():
     if USE_POSTGRES:
-        conn = psycopg.connect(DATABASE_URL)
+        conn = psycopg2.connect(DATABASE_URL)
         conn.autocommit = False
         return conn
     else:
