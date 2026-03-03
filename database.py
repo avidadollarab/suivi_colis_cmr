@@ -30,8 +30,7 @@ if DATABASE_URL:
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     USE_POSTGRES = True
-    import psycopg2
-    import psycopg2.extras
+    import psycopg
     print("Connecte a PostgreSQL (production)")
 else:
     USE_POSTGRES = False
@@ -44,7 +43,7 @@ else:
 # -------------------------------------------------------
 def get_connection():
     if USE_POSTGRES:
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = psycopg.connect(DATABASE_URL)
         conn.autocommit = False
         return conn
     else:
