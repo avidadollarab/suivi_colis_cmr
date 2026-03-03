@@ -33,7 +33,7 @@ if DATABASE_URL:
     try:
         import psycopg2
         import psycopg2.extras
-        print("Connecte a PostgreSQL via psycopg2")
+        print("Connecte a PostgreSQL (production)")
     except ImportError:
         raise RuntimeError(
             "psycopg2 non installe. Ajoutez psycopg2-binary==2.9.6 dans requirements.txt"
