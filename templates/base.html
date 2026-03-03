@@ -3,203 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Suivi Colis CMR{% endblock %}</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>{% block title %}SuiviColis CMR{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f4f8;
-            color: #2d3748;
-            min-height: 100vh;
+        :root {
+            --green:       #00C37A;
+            --green-dark:  #009960;
+            --green-light: #E6FBF3;
+            --navy:        #0D1F2D;
+            --slate:       #4A5568;
+            --muted:       #8898AA;
+            --border:      #E8EDF2;
+            --bg:          #F5F7FA;
+            --white:       #FFFFFF;
+            --orange:      #FF8C42;
+            --blue:        #3B82F6;
+            --purple:      #8B5CF6;
+            --teal:        #14B8A6;
+            --red:         #EF4444;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--navy); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
         /* NAVBAR */
-        .navbar {
-            background: linear-gradient(135deg, #007a3d, #004d26);
-            color: white;
-            padding: 0 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 64px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        .navbar .logo {
-            font-size: 1.3rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: white;
-        }
-        .navbar .logo span { font-size: 1.6rem; }
-        .navbar nav a {
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            margin-left: 1.5rem;
-            font-size: 0.95rem;
-            transition: color 0.2s;
-        }
-        .navbar nav a:hover { color: white; }
+        .navbar { background: var(--white); border-bottom: 1px solid var(--border); height: 64px; display: flex; align-items: center; padding: 0 2rem; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 8px rgba(13,31,45,0.06); }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--navy); font-weight: 700; font-size: 1.15rem; letter-spacing: -0.3px; }
+        .nav-logo .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--green), var(--green-dark)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 2px 8px rgba(0,195,122,0.3); }
+        .nav-logo span { color: var(--green); }
+        .nav-links { display: flex; align-items: center; gap: 0.3rem; }
+        .nav-links a { color: var(--slate); text-decoration: none; font-size: 0.9rem; font-weight: 500; padding: 0.45rem 0.9rem; border-radius: 8px; transition: all 0.15s; }
+        .nav-links a:hover { background: var(--bg); color: var(--navy); }
+        .nav-links .btn-nav { background: var(--green); color: white !important; padding: 0.45rem 1.1rem; border-radius: 8px; font-weight: 600; margin-left: 0.5rem; box-shadow: 0 2px 8px rgba(0,195,122,0.25); }
+        .nav-links .btn-nav:hover { background: var(--green-dark) !important; }
 
-        /* CONTENU */
-        .container {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-        }
+        /* LAYOUT */
+        .container { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .container-sm { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-        /* CARTES */
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            margin-bottom: 1.5rem;
-        }
-        .card h2 {
-            font-size: 1.3rem;
-            margin-bottom: 1.2rem;
-            color: #1a202c;
-            border-bottom: 2px solid #007a3d;
-            padding-bottom: 0.5rem;
-        }
+        /* CARDS */
+        .card { background: var(--white); border-radius: 16px; border: 1px solid var(--border); padding: 2rem; box-shadow: 0 2px 12px rgba(13,31,45,0.05); margin-bottom: 1.2rem; }
+        .card-title { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 1.2rem; }
 
-        /* FORMULAIRES */
+        /* FORMS */
         .form-group { margin-bottom: 1rem; }
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.4rem;
-            font-size: 0.9rem;
-            color: #4a5568;
-        }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.6rem 0.9rem;
-            border: 1.5px solid #cbd5e0;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: border-color 0.2s;
-            background: #fafafa;
-        }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #007a3d;
-            background: white;
-        }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.65rem 1rem; border: 1.5px solid var(--border); border-radius: 10px; font-size: 0.95rem; font-family: inherit; color: var(--navy); background: var(--white); transition: all 0.15s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(0,195,122,0.12); }
 
-        /* BOUTONS */
-        .btn {
-            padding: 0.6rem 1.4rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.2s;
-        }
-        .btn-green  { background: #007a3d; color: white; }
-        .btn-green:hover  { background: #005c2e; }
-        .btn-blue   { background: #3182ce; color: white; }
-        .btn-blue:hover   { background: #2c5282; }
-        .btn-orange { background: #dd6b20; color: white; }
-        .btn-orange:hover { background: #c05621; }
-        .btn-gray   { background: #718096; color: white; }
-        .btn-gray:hover   { background: #4a5568; }
-        .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.85rem; }
+        /* BUTTONS */
+        .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.3rem; border: none; border-radius: 10px; font-family: inherit; font-size: 0.92rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.15s; white-space: nowrap; }
+        .btn-primary { background: var(--green); color: white; box-shadow: 0 2px 8px rgba(0,195,122,0.3); }
+        .btn-primary:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,195,122,0.35); }
+        .btn-secondary { background: var(--bg); color: var(--slate); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--border); color: var(--navy); }
+        .btn-green { background: var(--green); color: white; box-shadow: 0 2px 8px rgba(0,195,122,0.3); }
+        .btn-green:hover { background: var(--green-dark); transform: translateY(-1px); }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-blue:hover { background: #2563EB; }
+        .btn-orange { background: var(--orange); color: white; }
+        .btn-orange:hover { background: #E0782E; }
+        .btn-gray { background: var(--slate); color: white; }
+        .btn-gray:hover { background: var(--navy); }
+        .btn-sm { padding: 0.4rem 0.85rem; font-size: 0.83rem; border-radius: 8px; }
+        .btn-lg { padding: 0.85rem 2rem; font-size: 1rem; border-radius: 12px; }
 
-        /* BADGES DE STATUT */
-        .badge {
-            display: inline-block;
-            padding: 0.3rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.82rem;
-            font-weight: 600;
-        }
-        .badge-orange  { background: #fef3c7; color: #92400e; }
-        .badge-blue    { background: #dbeafe; color: #1e40af; }
-        .badge-purple  { background: #ede9fe; color: #5b21b6; }
-        .badge-teal    { background: #ccfbf1; color: #115e59; }
-        .badge-green   { background: #d1fae5; color: #065f46; }
+        /* BADGES */
+        .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.28rem 0.75rem; border-radius: 20px; font-size: 0.79rem; font-weight: 600; }
+        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .badge-orange  { background: #FFF7ED; color: #C2410C; } .badge-orange::before  { background: #F97316; }
+        .badge-blue    { background: #EFF6FF; color: #1D4ED8; } .badge-blue::before    { background: #3B82F6; }
+        .badge-purple  { background: #F5F3FF; color: #6D28D9; } .badge-purple::before  { background: #8B5CF6; }
+        .badge-teal    { background: #F0FDFA; color: #0F766E; } .badge-teal::before    { background: #14B8A6; }
+        .badge-green   { background: var(--green-light); color: #065F46; } .badge-green::before   { background: var(--green); }
 
-        /* ALERTES FLASH */
-        .flash-messages { margin-bottom: 1rem; }
-        .alert {
-            padding: 0.8rem 1.2rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        .alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
-        .alert-danger  { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
-        .alert-info    { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+        /* ALERTS */
+        .flash-wrap { margin-bottom: 1.2rem; }
+        .alert { padding: 0.85rem 1.2rem; border-radius: 10px; font-size: 0.92rem; font-weight: 500; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem; }
+        .alert-success { background: var(--green-light); color: #065F46; border-left: 3px solid var(--green); }
+        .alert-danger  { background: #FEF2F2; color: #991B1B; border-left: 3px solid var(--red); }
+        .alert-info    { background: #EFF6FF; color: #1D4ED8; border-left: 3px solid var(--blue); }
+        .alert-warning { background: #FFFBEB; color: #92400E; border-left: 3px solid var(--orange); }
 
-        /* GRILLE */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        /* GRID */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-        @media (max-width: 700px) {
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 680px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } .container, .container-sm { padding: 1rem; } .navbar { padding: 0 1rem; } .nav-links a:not(.btn-nav) { display: none; } }
 
-        /* TABLEAU */
+        /* TABLE */
+        .table-wrap { background: var(--white); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 2px 12px rgba(13,31,45,0.05); }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f7fafc; font-weight: 600; font-size: 0.88rem; color: #4a5568; }
-        tr:hover td { background: #f7fafc; }
+        th { background: var(--bg); padding: 0.85rem 1.2rem; text-align: left; font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); border-bottom: 1px solid var(--border); }
+        td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #FAFBFD; }
 
         /* FOOTER */
-        footer {
-            text-align: center;
-            padding: 2rem;
-            color: #718096;
-            font-size: 0.85rem;
-            margin-top: 3rem;
-        }
+        footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 3rem; background: var(--white); }
+        footer strong { color: var(--navy); }
+
+        .mono { font-family: 'DM Mono', monospace; }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar">
-        <a href="{{ url_for('index') }}" class="logo">
-            <span>📦</span> SuiviColis CMR
-        </a>
-        <nav>
-            <a href="{{ url_for('index') }}">🏠 Accueil</a>
-            <a href="{{ url_for('suivre') }}">🔍 Suivre un colis</a>
-            {% if session.agent_id %}
-                <a href="{{ url_for('admin_dashboard') }}">⚙️ Admin</a>
-                <a href="{{ url_for('logout') }}">🚪 Déconnexion ({{ session.agent_nom }})</a>
-            {% else %}
-                <a href="{{ url_for('login') }}">🔐 Équipe</a>
-            {% endif %}
-        </nav>
-    </nav>
 
-    <div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-
-        {% block content %}{% endblock %}
+<nav class="navbar">
+    <a href="{{ url_for('index') }}" class="nav-logo">
+        <div class="logo-icon">📦</div>
+        <div>Suivi<span>Colis</span> CMR</div>
+    </a>
+    <div class="nav-links">
+        <a href="{{ url_for('index') }}">Accueil</a>
+        <a href="{{ url_for('suivre') }}">Suivre un colis</a>
+        {% if session.agent_id %}
+            <a href="{{ url_for('admin_dashboard') }}">⚙ Admin</a>
+            <a href="{{ url_for('logout') }}" class="btn-nav">{{ session.agent_nom }} · Quitter</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="btn-nav">Espace équipe →</a>
+        {% endif %}
     </div>
+</nav>
 
-    <footer>
-        🇫🇷 → 🇨🇲 &nbsp; Système de suivi de colis France–Cameroun
-    </footer>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="container" style="padding-top:1rem; padding-bottom:0;">
+            <div class="flash-wrap">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<footer>
+    <strong>SuiviColis CMR</strong> · Acheminement de colis 🇫🇷 France → 🇨🇲 Cameroun · © 2026 · <span style="color:var(--green);font-weight:700">Design SendCloud v2</span>
+</footer>
+
 </body>
 </html>

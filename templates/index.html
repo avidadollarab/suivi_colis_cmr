@@ -1,141 +1,346 @@
 {% extends "base.html" %}
-{% block title %}Suivi Colis France–Cameroun{% endblock %}
+{% block title %}SuiviColis CMR — Suivi de colis France → Cameroun{% endblock %}
 
 {% block extra_css %}
 <style>
+    /* HERO */
     .hero {
-        background: linear-gradient(135deg, #007a3d 0%, #004d26 60%, #003d1f 100%);
-        color: white;
+        background: linear-gradient(160deg, #0D1F2D 0%, #0a3d2e 50%, #003d25 100%);
+        padding: 5rem 2rem 4rem;
         text-align: center;
-        padding: 4rem 2rem;
-        border-radius: 16px;
-        margin-bottom: 2rem;
         position: relative;
         overflow: hidden;
     }
+
     .hero::before {
-        content: "🇫🇷  ✈️  🇨🇲";
+        content: '';
         position: absolute;
-        font-size: 4rem;
-        opacity: 0.08;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        white-space: nowrap;
-        letter-spacing: 1rem;
+        inset: 0;
+        background: radial-gradient(ellipse at 60% 0%, rgba(0,195,122,0.18) 0%, transparent 60%),
+                    radial-gradient(ellipse at 20% 100%, rgba(0,195,122,0.1) 0%, transparent 50%);
+        pointer-events: none;
     }
-    .hero h1 { font-size: 2.2rem; margin-bottom: 0.8rem; }
-    .hero p  { font-size: 1.1rem; opacity: 0.9; margin-bottom: 2rem; }
 
-    .search-bar {
-        display: flex;
-        max-width: 550px;
-        margin: 0 auto;
-        gap: 0.5rem;
+    /* grille de points subtile */
+    .hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+        background-size: 32px 32px;
+        pointer-events: none;
     }
-    .search-bar input {
-        flex: 1;
-        padding: 0.9rem 1.2rem;
-        border: none;
-        border-radius: 10px;
-        font-size: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .search-bar button {
-        padding: 0.9rem 1.8rem;
-        background: #fbbf24;
-        color: #1a202c;
-        border: none;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-    .search-bar button:hover { background: #f59e0b; }
 
-    .etapes {
-        display: flex;
-        justify-content: space-between;
+    .hero-inner { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
+
+    .hero-badge {
+        display: inline-flex;
         align-items: center;
-        padding: 1.5rem;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
         gap: 0.5rem;
+        background: rgba(0,195,122,0.15);
+        border: 1px solid rgba(0,195,122,0.3);
+        color: #6EFFC4;
+        border-radius: 30px;
+        padding: 0.35rem 1rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        margin-bottom: 1.5rem;
     }
-    .etape {
+
+    .hero h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 700;
+        color: white;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
+        margin-bottom: 1rem;
+    }
+
+    .hero h1 em { color: var(--green); font-style: normal; }
+
+    .hero p {
+        color: rgba(255,255,255,0.65);
+        font-size: 1.05rem;
+        margin-bottom: 2.5rem;
+        line-height: 1.6;
+    }
+
+    /* BARRE DE RECHERCHE */
+    .search-box {
+        background: white;
+        border-radius: 16px;
+        padding: 0.6rem 0.6rem 0.6rem 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+        max-width: 520px;
+        margin: 0 auto 1rem;
+    }
+
+    .search-box .search-icon { color: var(--muted); font-size: 1.1rem; flex-shrink: 0; }
+
+    .search-box input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 1rem;
+        font-family: inherit;
+        color: var(--navy);
+        background: transparent;
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.5px;
+    }
+
+    .search-box input::placeholder { color: var(--muted); font-family: 'DM Sans', sans-serif; letter-spacing: 0; }
+
+    .search-box button {
+        background: var(--green);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 1.5rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .search-box button:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+    .search-hint { color: rgba(255,255,255,0.4); font-size: 0.8rem; }
+
+    /* PARCOURS / ÉTAPES */
+    .parcours-section {
+        background: white;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .parcours-inner {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        overflow-x: auto;
+    }
+
+    .etape-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.4rem;
-        font-size: 0.85rem;
-        color: #4a5568;
-        font-weight: 500;
+        gap: 0.5rem;
+        min-width: 110px;
+        flex-shrink: 0;
     }
-    .etape .icon { font-size: 1.8rem; }
-    .etape-arrow { color: #cbd5e0; font-size: 1.5rem; }
 
-    .info-grid {
+    .etape-icon-wrap {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: var(--bg);
+        border: 1.5px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        transition: all 0.2s;
+    }
+
+    .etape-item:hover .etape-icon-wrap {
+        background: var(--green-light);
+        border-color: rgba(0,195,122,0.4);
+        transform: translateY(-2px);
+    }
+
+    .etape-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--slate);
+        text-align: center;
+    }
+
+    .etape-sub {
+        font-size: 0.7rem;
+        color: var(--muted);
+        text-align: center;
+        margin-top: -0.3rem;
+    }
+
+    .etape-arrow {
+        color: var(--border);
+        font-size: 1.2rem;
+        padding: 0 0.5rem;
+        margin-bottom: 1.8rem;
+        flex-shrink: 0;
+    }
+
+    /* SECTION FEATURES */
+    .features { padding: 4rem 0 3rem; }
+
+    .section-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--green);
+        margin-bottom: 0.6rem;
+    }
+
+    .section-title {
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: var(--navy);
+        letter-spacing: -0.3px;
+        margin-bottom: 0.6rem;
+    }
+
+    .section-sub {
+        color: var(--slate);
+        font-size: 0.95rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .feature-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 1.2rem;
-        margin-bottom: 2rem;
     }
-    .info-card {
+
+    .feature-card {
         background: white;
-        border-radius: 12px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
         padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: all 0.2s;
     }
-    .info-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
-    .info-card h3 { font-size: 1rem; margin-bottom: 0.4rem; color: #1a202c; }
-    .info-card p  { font-size: 0.87rem; color: #718096; }
-    @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .feature-card:hover {
+        border-color: rgba(0,195,122,0.35);
+        box-shadow: 0 4px 20px rgba(0,195,122,0.1);
+        transform: translateY(-2px);
+    }
+
+    .feature-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--green-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .feature-card p  { font-size: 0.85rem; color: var(--slate); line-height: 1.5; }
+
+    @media (max-width: 680px) { .feature-grid { grid-template-columns: 1fr; } .parcours-inner { justify-content: flex-start; } }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="hero">
-    <h1>📦 Suivez votre colis en temps réel</h1>
-    <p>De la France jusqu'à votre porte au Cameroun</p>
-    <form action="{{ url_for('suivre') }}" method="GET" class="search-bar">
-        <input type="text" name="numero" placeholder="Ex: CMR-2024-00147" required>
-        <button type="submit">🔍 Suivre</button>
-    </form>
-</div>
 
-<div class="etapes">
-    <div class="etape"><span class="icon">🏠</span> Ramassage</div>
-    <div class="etape-arrow">→</div>
-    <div class="etape"><span class="icon">🏭</span> Conteneur</div>
-    <div class="etape-arrow">→</div>
-    <div class="etape"><span class="icon">🚢</span> En mer</div>
-    <div class="etape-arrow">→</div>
-    <div class="etape"><span class="icon">⚓</span> Port de Douala</div>
-    <div class="etape-arrow">→</div>
-    <div class="etape"><span class="icon">✅</span> Livré</div>
-</div>
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-badge">🇫🇷 France · 🚢 Transit · 🇨🇲 Cameroun</div>
+        <h1>Suivez votre colis<br><em>en temps réel</em></h1>
+        <p>Entrez votre numéro de suivi et retrouvez instantanément<br>l'état de votre envoi, de Paris jusqu'à Douala.</p>
 
-<div class="info-grid">
-    <div class="info-card">
-        <div class="icon">🔢</div>
-        <h3>Votre numéro de suivi</h3>
-        <p>Reçu par SMS ou email lors du ramassage. Format : CMR-AAAA-NNNNN</p>
+        <form action="{{ url_for('suivre') }}" method="GET" class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" name="numero" placeholder="CMR-2026-00147" autocomplete="off" spellcheck="false" required>
+            <button type="submit">Suivre →</button>
+        </form>
+
+        <p class="search-hint">Exemple · CMR-2026-00147</p>
     </div>
-    <div class="info-card">
-        <div class="icon">📍</div>
-        <h3>Suivi à chaque étape</h3>
-        <p>Notre équipe met à jour le statut de votre colis à chaque étape clé du trajet</p>
+</section>
+
+<!-- PARCOURS -->
+<section class="parcours-section">
+    <div class="parcours-inner">
+        <div class="etape-item">
+            <div class="etape-icon-wrap">🏠</div>
+            <div class="etape-label">Ramassage</div>
+            <div class="etape-sub">À domicile</div>
+        </div>
+        <div class="etape-arrow">›</div>
+        <div class="etape-item">
+            <div class="etape-icon-wrap">🏭</div>
+            <div class="etape-label">Conteneur</div>
+            <div class="etape-sub">Europe</div>
+        </div>
+        <div class="etape-arrow">›</div>
+        <div class="etape-item">
+            <div class="etape-icon-wrap">🚢</div>
+            <div class="etape-label">En transit</div>
+            <div class="etape-sub">Mer Atlantique</div>
+        </div>
+        <div class="etape-arrow">›</div>
+        <div class="etape-item">
+            <div class="etape-icon-wrap">⚓</div>
+            <div class="etape-label">Port Douala</div>
+            <div class="etape-sub">Cameroun</div>
+        </div>
+        <div class="etape-arrow">›</div>
+        <div class="etape-item">
+            <div class="etape-icon-wrap">✅</div>
+            <div class="etape-label">Livré</div>
+            <div class="etape-sub">À domicile</div>
+        </div>
     </div>
-    <div class="info-card">
-        <div class="icon">📞</div>
-        <h3>Besoin d'aide ?</h3>
-        <p>Contactez-nous au <strong>+33 6 XX XX XX XX</strong><br>ou par WhatsApp</p>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+    <div class="container">
+        <div style="text-align:center; margin-bottom:2.5rem;">
+            <div class="section-label">Pourquoi nous choisir</div>
+            <div class="section-title">Une logistique simple et transparente</div>
+            <div class="section-sub">Nous prenons en charge votre colis du premier au dernier kilomètre.</div>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📍</div>
+                <h3>Suivi étape par étape</h3>
+                <p>Consultez l'état de votre colis à chaque étape clé du trajet, de l'Europe jusqu'au Cameroun.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Notifications SMS & WhatsApp</h3>
+                <p>Recevez un message automatique à chaque changement de statut, en français et en anglais.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔢</div>
+                <h3>Numéro de suivi unique</h3>
+                <p>Un code personnel généré lors du ramassage. Format CMR-AAAA-NNNNN, simple à mémoriser.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏠</div>
+                <h3>Collecte à domicile</h3>
+                <p>Notre équipe vient récupérer vos colis directement chez vous en Europe chaque week-end.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🇨🇲</div>
+                <h3>Livraison au Cameroun</h3>
+                <p>Douala, Yaoundé, Bafoussam et les autres villes — nous couvrons tout le territoire national.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📞</div>
+                <h3>Support réactif</h3>
+                <p>Une question ? Notre équipe est joignable par WhatsApp du lundi au samedi de 8h à 20h.</p>
+            </div>
+        </div>
     </div>
-</div>
+</section>
+
 {% endblock %}

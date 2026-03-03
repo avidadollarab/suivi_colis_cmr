@@ -1,58 +1,100 @@
 {% extends "base.html" %}
-{% block title %}Connexion Équipe{% endblock %}
+{% block title %}Connexion Équipe · SuiviColis CMR{% endblock %}
 
 {% block extra_css %}
 <style>
-    .login-wrapper {
-        max-width: 420px;
-        margin: 3rem auto;
+    .login-page {
+        min-height: calc(100vh - 64px - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
     }
+
+    .login-wrap { width: 100%; max-width: 400px; }
+
+    .login-logo {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .login-logo .icon-big {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, var(--green), var(--green-dark));
+        border-radius: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        box-shadow: 0 4px 20px rgba(0,195,122,0.3);
+        margin-bottom: 1rem;
+    }
+
+    .login-logo h1 { font-size: 1.5rem; font-weight: 700; color: var(--navy); }
+    .login-logo p  { color: var(--muted); font-size: 0.88rem; margin-top: 0.3rem; }
+
     .login-card {
         background: white;
-        border-radius: 16px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
         padding: 2.5rem;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-        text-align: center;
+        box-shadow: 0 4px 24px rgba(13,31,45,0.08);
     }
-    .login-card .icone { font-size: 3rem; margin-bottom: 0.5rem; }
-    .login-card h2 { font-size: 1.4rem; margin-bottom: 0.3rem; }
-    .login-card .sous-titre { color: #718096; font-size: 0.9rem; margin-bottom: 2rem; }
-    .login-card .form-group { text-align: left; }
-    .login-card .btn-green { width: 100%; padding: 0.8rem; font-size: 1rem; margin-top: 0.5rem; }
-    .login-hint {
-        margin-top: 1.5rem;
+
+    .login-card .btn-primary {
+        width: 100%;
+        justify-content: center;
         padding: 0.8rem;
-        background: #f0fdf4;
-        border-radius: 8px;
-        font-size: 0.83rem;
-        color: #065f46;
+        font-size: 1rem;
+        margin-top: 0.5rem;
+        border-radius: 12px;
     }
+
+    .login-hint {
+        margin-top: 1.2rem;
+        padding: 0.9rem 1rem;
+        background: var(--bg);
+        border-radius: 10px;
+        font-size: 0.82rem;
+        color: var(--muted);
+        text-align: center;
+        border: 1px solid var(--border);
+    }
+
+    .login-hint strong { color: var(--navy); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="login-wrapper">
-    <div class="login-card">
-        <div class="icone">🔐</div>
-        <h2>Espace Équipe</h2>
-        <p class="sous-titre">Réservé aux agents autorisés</p>
+<div class="login-page">
+    <div class="login-wrap">
 
-        <form method="POST">
-            <div class="form-group">
-                <label>Identifiant</label>
-                <input type="text" name="identifiant" required placeholder="Votre identifiant">
-            </div>
-            <div class="form-group">
-                <label>Mot de passe</label>
-                <input type="password" name="mot_de_passe" required placeholder="••••••••">
-            </div>
-            <button type="submit" class="btn btn-green">Se connecter</button>
-        </form>
-
-        <div class="login-hint">
-            💡 Identifiant par défaut : <strong>admin</strong> / <strong>admin123</strong><br>
-            (À changer en production !)
+        <div class="login-logo">
+            <div class="icon-big">🔐</div>
+            <h1>Espace équipe</h1>
+            <p>Connectez-vous pour gérer les colis</p>
         </div>
+
+        <div class="login-card">
+            <form method="POST">
+                <div class="form-group">
+                    <label>Identifiant</label>
+                    <input type="text" name="identifiant" required placeholder="Votre identifiant" autofocus>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" name="mot_de_passe" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary">Se connecter →</button>
+            </form>
+
+            <div class="login-hint">
+                Identifiant par défaut : <strong>admin</strong> / <strong>admin123</strong><br>
+                Pensez à le changer en production.
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}
