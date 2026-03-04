@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "cd .next/standalone && node server.js",
+    "start": "node node_modules/next/dist/bin/next start",
     "lint": "next lint"
   },
   "dependencies": {
