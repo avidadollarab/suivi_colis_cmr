@@ -12,54 +12,12 @@ export const COMPANY = {
 };
 
 export const SERVICES = [
-  {
-    id: "colis",
-    title: "Colis carton",
-    description: "Envoi de colis standards",
-    price: "à partir de 40€",
-    icon: "📦",
-    cta: "Demander un devis",
-  },
-  {
-    id: "fut",
-    title: "Fût 220L",
-    description: "Fût industriel 220 litres",
-    price: "175€",
-    icon: "🛢️",
-    cta: "Demander un devis",
-  },
-  {
-    id: "g1",
-    title: "Véhicule G1",
-    description: "Véhicule citadine",
-    price: "1000€",
-    icon: "🚗",
-    cta: "Demander un devis",
-  },
-  {
-    id: "g2",
-    title: "Véhicule G2",
-    description: "Monospace / SUV",
-    price: "1500€",
-    icon: "🚙",
-    cta: "Demander un devis",
-  },
-  {
-    id: "g3",
-    title: "Véhicule G3",
-    description: "Berline",
-    price: "1200€",
-    icon: "🚘",
-    cta: "Demander un devis",
-  },
-  {
-    id: "tv",
-    title: "TV / Électroménager",
-    description: "Téléviseurs et appareils",
-    price: "à partir de 60€",
-    icon: "📺",
-    cta: "Demander un devis",
-  },
+  { id: "colis", title: "Colis carton", description: "Envoi de colis standards", price: "à partir de 40€", cta: "Demander un devis" },
+  { id: "fut", title: "Fût 220L", description: "Fût industriel 220 litres", price: "175€", cta: "Demander un devis" },
+  { id: "g1", title: "Véhicule G1", description: "Véhicule citadine", price: "1000€", cta: "Demander un devis" },
+  { id: "g2", title: "Véhicule G2", description: "Monospace / SUV", price: "1500€", cta: "Demander un devis" },
+  { id: "g3", title: "Véhicule G3", description: "Berline", price: "1200€", cta: "Demander un devis" },
+  { id: "tv", title: "TV / Électroménager", description: "Téléviseurs et appareils", price: "à partir de 60€", cta: "Demander un devis" },
 ];
 
 export const CITIES = [

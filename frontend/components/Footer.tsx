@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { COMPANY } from "@/data/company";
+import { MICRO_COPY } from "@/data/microCopy";
+import { IconChat } from "./icons";
 
 export function Footer() {
   return (
@@ -60,14 +62,16 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-white/90 hover:text-gold transition-colors mb-2"
+              aria-label="Contacter par WhatsApp"
             >
-              <span className="text-green-400">●</span> WhatsApp {COMPANY.whatsapp}
+              <IconChat size={18} strokeWidth={2} className="text-green-400" />
+              WhatsApp {COMPANY.whatsapp}
             </a>
             <p className="text-sm text-white/80">{COMPANY.address}</p>
           </div>
         </div>
         <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm text-white/80">
-          © 2026 ELISÉE XPRESS LOG · Groupage & expédition 🇪🇺 Europe → 🌍 Afrique
+          {MICRO_COPY.footer.copyright}
         </div>
       </div>
     </footer>

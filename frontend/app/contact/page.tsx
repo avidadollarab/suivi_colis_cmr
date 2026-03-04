@@ -5,6 +5,7 @@ import { Section } from "@/components/Section";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/Button";
 import { COMPANY } from "@/data/company";
+import { IconChat, IconLocation } from "@/components/icons";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -97,15 +98,16 @@ export default function ContactPage() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-smooth mb-4"
+              aria-label="Contacter par WhatsApp"
             >
-              <span className="text-3xl">💬</span>
+              <IconChat size={28} strokeWidth={1.5} className="text-green-600" />
               <div>
                 <p className="font-semibold text-gray-800">WhatsApp</p>
                 <p className="text-green-700 font-mono">{COMPANY.whatsapp}</p>
               </div>
             </a>
             <div className="flex items-start gap-3">
-              <span className="text-2xl">📍</span>
+              <IconLocation size={24} strokeWidth={1.5} className="text-primary flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-gray-800">Adresse</p>
                 <p className="text-gray-600">{COMPANY.address}</p>

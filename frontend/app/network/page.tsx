@@ -1,5 +1,6 @@
 import { Section } from "@/components/Section";
 import { CITIES } from "@/data/company";
+import { IconLocation } from "@/components/icons";
 
 export default function NetworkPage() {
   return (
@@ -15,7 +16,7 @@ export default function NetworkPage() {
                 key={city}
                 className="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl hover:bg-primary/5 hover:border-primary/20 border border-transparent transition-smooth"
               >
-                <span className="text-primary">📍</span>
+                <IconLocation size={18} strokeWidth={1.5} className="text-primary flex-shrink-0" />
                 <span className="font-medium text-gray-800">{city}</span>
               </div>
             ))}

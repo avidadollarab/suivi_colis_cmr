@@ -7,6 +7,8 @@ import { TrackingSearch } from "@/components/TrackingSearch";
 import { TrackingResult } from "@/components/TrackingResult";
 import { Button } from "@/components/Button";
 import Link from "next/link";
+import { MICRO_COPY } from "@/data/microCopy";
+import { IconBox } from "@/components/icons";
 
 function TrackingContent() {
   const searchParams = useSearchParams();
@@ -29,7 +31,7 @@ function TrackingContent() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-2xl text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-primary mb-4">
-            Suivre un colis
+            {MICRO_COPY.tracking.title}
           </h1>
           <p className="text-gray-600 mb-8">
             Entrez votre numéro de suivi pour consulter l&apos;état de votre envoi.
@@ -57,18 +59,19 @@ function TrackingContent() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-xl">
           <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-8 text-center">
-            <div className="text-5xl mb-4">❌</div>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+              <IconBox size={32} strokeWidth={1.5} className="text-red-600" />
+            </div>
             <h2 className="text-xl font-bold text-red-800 mb-2">
-              Numéro introuvable
+              {MICRO_COPY.tracking.notFound.title}
             </h2>
             <p className="text-red-700 mb-6">
-              Aucun colis trouvé avec le numéro <strong>{numeroParam}</strong>.
-              Vérifiez que le numéro est correct (format EXL2026XXX).
+              {MICRO_COPY.tracking.notFound.desc}
             </p>
             <div className="space-y-3">
-              <TrackingSearch size="sm" placeholder="Nouvelle recherche" />
+              <TrackingSearch size="sm" placeholder={MICRO_COPY.hero.searchPlaceholder} />
               <Link href="/">
-                <Button variant="secondary">Retour à l&apos;accueil</Button>
+                <Button variant="secondary">{MICRO_COPY.tracking.notFound.back}</Button>
               </Link>
             </div>
           </div>

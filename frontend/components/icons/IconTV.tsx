@@ -1,0 +1,28 @@
+"use client";
+
+interface IconTVProps {
+  className?: string;
+  size?: number;
+  strokeWidth?: number;
+}
+
+export function IconTV({ className = "", size = 24, strokeWidth = 1.5 }: IconTVProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <rect width="20" height="15" x="2" y="7" rx="2" ry="2" />
+      <polyline points="17 2 12 7 7 2" />
+    </svg>
+  );
+}

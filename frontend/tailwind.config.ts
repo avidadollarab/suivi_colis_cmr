@@ -10,18 +10,18 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#1a3a6b",
-          dark: "#0D1B3E",
-          light: "#EEF2FF",
+          DEFAULT: "#0052A6",
+          dark: "#003d7a",
+          light: "#E6F0FA",
         },
         gold: {
-          DEFAULT: "#D4AF37",
-          dark: "#B8960C",
-          light: "#FEF9E7",
+          DEFAULT: "#F4B000",
+          dark: "#c79f32",
+          light: "#FFF8E6",
         },
       },
       fontFamily: {
-        sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
     },
   },

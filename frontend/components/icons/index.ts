@@ -1,0 +1,15 @@
+export { IconBox } from "./IconBox";
+export { IconShipment } from "./IconShipment";
+export { IconCar } from "./IconCar";
+export { IconBoat } from "./IconBoat";
+export { IconWarehouse } from "./IconWarehouse";
+export { IconLocation } from "./IconLocation";
+export { IconPhone } from "./IconPhone";
+export { IconCalendar } from "./IconCalendar";
+export { IconLock } from "./IconLock";
+export { IconCheck } from "./IconCheck";
+export { IconHome } from "./IconHome";
+export { IconTV } from "./IconTV";
+export { IconBarrel } from "./IconBarrel";
+export { IconAnchor } from "./IconAnchor";
+export { IconChat } from "./IconChat";

@@ -4,14 +4,25 @@
 
 @layer base {
   :root {
-    --primary: #1a3a6b;
-    --primary-dark: #0D1B3E;
-    --gold: #D4AF37;
-    --gold-dark: #B8960C;
+    --primary: #0052a6;
+    --primary-dark: #003d7a;
+    --gold: #f4b000;
+    --gold-dark: #c79f32;
   }
 
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Accessibilité : réduire les animations pour les utilisateurs sensibles */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   body {
@@ -22,5 +33,9 @@
 @layer components {
   .transition-smooth {
     @apply transition-all duration-300 ease-out;
+  }
+
+  .transition-fast {
+    @apply transition-all duration-200 ease-out;
   }
 }

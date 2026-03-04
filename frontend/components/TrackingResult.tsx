@@ -1,13 +1,17 @@
 "use client";
 
+import { motion } from "framer-motion";
 import type { Shipment } from "@/data/mockShipments";
 import { Card } from "./Card";
 import { Timeline } from "./Timeline";
 import { Button } from "./Button";
 import Link from "next/link";
+import { IconBox, IconWarehouse, IconBoat, IconAnchor, IconCheck } from "./icons";
+import { MICRO_COPY } from "@/data/microCopy";
 
 interface TrackingResultProps {
   shipment: Shipment;
+  enableAnimations?: boolean;
 }
 
 const statutColors: Record<string, string> = {
@@ -19,11 +23,11 @@ const statutColors: Record<string, string> = {
 };
 
 const ETAPES = [
-  { key: "RAMASSE", icon: "📦", label: "Ramassé" },
-  { key: "EN_CONTENEUR", icon: "🏭", label: "Conteneur" },
-  { key: "PARTI", icon: "🚢", label: "En transit" },
-  { key: "ARRIVE", icon: "⚓", label: "À Douala" },
-  { key: "LIVRE", icon: "✅", label: "Livré" },
+  { key: "RAMASSE", icon: <IconBox size={20} strokeWidth={2} />, label: "Ramassé" },
+  { key: "EN_CONTENEUR", icon: <IconWarehouse size={20} strokeWidth={2} />, label: "Conteneur" },
+  { key: "PARTI", icon: <IconBoat size={20} strokeWidth={2} />, label: "En transit" },
+  { key: "ARRIVE", icon: <IconAnchor size={20} strokeWidth={2} />, label: "À Douala" },
+  { key: "LIVRE", icon: <IconCheck size={20} strokeWidth={2.5} />, label: "Livré" },
 ] as const;
 
 function getProgressPercent(statut: string): number {
@@ -32,7 +36,7 @@ function getProgressPercent(statut: string): number {
   return idx >= 0 ? ((idx + 1) / order.length) * 100 : 0;
 }
 
-export function TrackingResult({ shipment }: TrackingResultProps) {
+export function TrackingResult({ shipment, enableAnimations = true }: TrackingResultProps) {
   const progress = getProgressPercent(shipment.statut);
   const idxActuel = ETAPES.findIndex((e) => e.key === shipment.statut);
   const datesEtape: Record<string, string | undefined> = {
@@ -86,7 +90,7 @@ export function TrackingResult({ shipment }: TrackingResultProps) {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <p className="text-sm text-gray-500 font-medium uppercase tracking-wider">
-              Numéro de suivi
+              {MICRO_COPY.tracking.summary.number}
             </p>
             <p className="text-2xl font-mono font-bold text-primary mt-1">
               {shipment.numero_suivi}
@@ -102,50 +106,56 @@ export function TrackingResult({ shipment }: TrackingResultProps) {
           <div className="text-right space-y-1">
             {shipment.eta && (
               <p className="text-sm text-gray-600">
-                <span className="font-medium">ETA :</span> {shipment.eta}
+                <span className="font-medium">{MICRO_COPY.tracking.summary.eta} :</span> {shipment.eta}
               </p>
             )}
             <p className="text-sm text-gray-500">
-              Dernière mise à jour :{" "}
+              {MICRO_COPY.tracking.summary.lastUpdate} :{" "}
               {shipment.historique.filter((h) => h.completed).slice(-1)[0]
                 ?.date || shipment.date_creation}
             </p>
           </div>
         </div>
 
-        {/* Barre de progression */}
+        {/* Barre de progression - animation fluide */}
         <div className="mt-6">
           <div className="flex justify-between text-xs text-gray-500 mb-1">
-            <span>Progression</span>
+            <span>{MICRO_COPY.tracking.summary.progress}</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
+            {enableAnimations ? (
+              <motion.div
+                className="h-full bg-primary rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              />
+            ) : (
+              <div className="h-full bg-primary rounded-full" style={{ width: `${progress}%` }} />
+            )}
           </div>
         </div>
 
         {/* Infos colis */}
         <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <p className="text-gray-500">Description</p>
+            <p className="text-gray-500">{MICRO_COPY.tracking.summary.description}</p>
             <p className="font-medium">{shipment.description}</p>
           </div>
           <div>
-            <p className="text-gray-500">Poids</p>
+            <p className="text-gray-500">{MICRO_COPY.tracking.summary.weight}</p>
             <p className="font-medium">{shipment.poids_kg} kg</p>
           </div>
           <div>
-            <p className="text-gray-500">Destination</p>
+            <p className="text-gray-500">{MICRO_COPY.tracking.summary.destination}</p>
             <p className="font-medium">
               {shipment.dest_ville}
               {shipment.dest_quartier && `, ${shipment.dest_quartier}`}
             </p>
           </div>
           <div>
-            <p className="text-gray-500">Client</p>
+            <p className="text-gray-500">{MICRO_COPY.tracking.summary.client}</p>
             <p className="font-medium">
               {shipment.client_prenom} {shipment.client_nom}
             </p>
@@ -156,16 +166,16 @@ export function TrackingResult({ shipment }: TrackingResultProps) {
         {/* Frise chronologique - droite */}
         <Card>
           <h3 className="text-lg font-bold text-primary mb-6">
-            Historique du colis
+            {MICRO_COPY.tracking.timeline.title}
           </h3>
-          <Timeline events={shipment.historique} />
+          <Timeline events={shipment.historique} enableAnimations={enableAnimations} />
         </Card>
       </div>
 
       <div className="text-center">
         <Link href="/">
           <Button variant="outline" size="lg">
-            ← Nouvelle recherche
+            ← {MICRO_COPY.tracking.timeline.newSearch}
           </Button>
         </Link>
       </div>
