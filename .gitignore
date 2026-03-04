@@ -6,6 +6,11 @@ __pycache__/
 *.log
 venv/
 
+# Frontend Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
 # Anciens templates à la racine (remplacés par templates/)
 /base*.html
 /dashboard.html
