@@ -67,7 +67,7 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm text-white/80">
-          © 2026 ELISÉE XPRESS LOG · Tous droits réservés
+          © 2026 ELISÉE XPRESS LOG · Groupage & expédition 🇪🇺 Europe → 🌍 Afrique
         </div>
       </div>
     </footer>

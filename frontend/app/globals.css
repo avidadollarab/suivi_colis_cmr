@@ -4,10 +4,10 @@
 
 @layer base {
   :root {
-    --primary: #0052a6;
-    --primary-dark: #004080;
-    --gold: #f4b000;
-    --gold-dark: #c79f32;
+    --primary: #1a3a6b;
+    --primary-dark: #0D1B3E;
+    --gold: #D4AF37;
+    --gold-dark: #B8960C;
   }
 
   html {

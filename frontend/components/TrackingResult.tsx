@@ -18,6 +18,14 @@ const statutColors: Record<string, string> = {
   LIVRE: "bg-green-100 text-green-800",
 };
 
+const ETAPES = [
+  { key: "RAMASSE", icon: "📦", label: "Ramassé" },
+  { key: "EN_CONTENEUR", icon: "🏭", label: "Conteneur" },
+  { key: "PARTI", icon: "🚢", label: "En transit" },
+  { key: "ARRIVE", icon: "⚓", label: "À Douala" },
+  { key: "LIVRE", icon: "✅", label: "Livré" },
+] as const;
+
 function getProgressPercent(statut: string): number {
   const order = ["RAMASSE", "EN_CONTENEUR", "PARTI", "ARRIVE", "LIVRE"];
   const idx = order.indexOf(statut);
@@ -26,9 +34,51 @@ function getProgressPercent(statut: string): number {
 
 export function TrackingResult({ shipment }: TrackingResultProps) {
   const progress = getProgressPercent(shipment.statut);
+  const idxActuel = ETAPES.findIndex((e) => e.key === shipment.statut);
+  const datesEtape: Record<string, string | undefined> = {
+    RAMASSE: shipment.date_ramassage,
+    EN_CONTENEUR: shipment.date_conteneur,
+    PARTI: shipment.date_depart,
+    ARRIVE: shipment.date_arrivee,
+    LIVRE: shipment.date_livraison,
+  };
 
   return (
     <div className="space-y-8">
+      {/* Frise de progression horizontale - style suivre.html */}
+      <Card className="!p-6 overflow-x-auto">
+        <div className="flex items-start gap-0 min-w-[480px]">
+          {ETAPES.map((etape, i) => {
+            const etat = i < idxActuel ? "done" : i === idxActuel ? "active" : "future";
+            const dateE = datesEtape[etape.key];
+            return (
+              <div key={etape.key} className="flex items-center flex-1 min-w-0">
+                <div className="flex flex-col items-center flex-1">
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-xl border-2 transition-all ${
+                      etat === "done"
+                        ? "bg-primary border-primary text-white"
+                        : etat === "active"
+                        ? "bg-white border-primary ring-4 ring-primary/20"
+                        : "bg-gray-100 border-gray-200 opacity-50"
+                    }`}
+                  >
+                    {etape.icon}
+                  </div>
+                  <span className={`text-xs font-semibold mt-2 text-center max-w-[70px] ${etat === "future" ? "text-gray-400" : "text-gray-700"}`}>
+                    {etape.label}
+                  </span>
+                  {dateE && <span className="text-[10px] text-gray-500">{dateE.slice(0, 10)}</span>}
+                </div>
+                {i < ETAPES.length - 1 && (
+                  <div className={`flex-shrink-0 w-8 h-0.5 rounded mx-0.5 mt-[-24px] ${i < idxActuel ? "bg-primary" : "bg-gray-200"}`} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
       {/* Layout 2 colonnes desktop : résumé à gauche, frise à droite */}
       <div className="grid md:grid-cols-[1fr,1.2fr] gap-8 items-start">
         {/* Carte récapitulative - gauche */}
