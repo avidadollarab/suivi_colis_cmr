@@ -5,6 +5,7 @@ import { Suspense, useEffect, useState } from "react";
 import { getShipmentByNumber } from "@/data/mockShipments";
 import { TrackingSearch } from "@/components/TrackingSearch";
 import { TrackingResult } from "@/components/TrackingResult";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { Button } from "@/components/Button";
 import Link from "next/link";
 import { MICRO_COPY } from "@/data/microCopy";
@@ -29,7 +30,7 @@ function TrackingContent() {
   if (!numeroParam) {
     return (
       <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 max-w-2xl text-center">
+        <ScrollReveal className="container mx-auto px-4 max-w-2xl text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-primary mb-4">
             {MICRO_COPY.tracking.title}
           </h1>
@@ -37,7 +38,7 @@ function TrackingContent() {
             Entrez votre numéro de suivi pour consulter l&apos;état de votre envoi.
           </p>
           <TrackingSearch size="sm" />
-        </div>
+        </ScrollReveal>
       </section>
     );
   }
@@ -83,9 +84,9 @@ function TrackingContent() {
   // Résultat trouvé
   return (
     <section className="py-12 md:py-16">
-      <div className="container mx-auto px-4 max-w-5xl">
+      <ScrollReveal className="container mx-auto px-4 max-w-5xl">
         <TrackingResult shipment={shipment} />
-      </div>
+      </ScrollReveal>
     </section>
   );
 }

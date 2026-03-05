@@ -41,10 +41,25 @@ export function TimelineStep({
     >
       <motion.div
         className={`relative z-10 flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-          isCompleted ? "bg-primary text-white" : isCurrent ? "bg-primary/20 text-primary border-2 border-primary" : "bg-gray-200 text-gray-500"
+          isCompleted
+            ? "bg-primary text-white"
+            : isCurrent
+            ? "bg-primary/20 text-primary border-2 border-primary ring-4 ring-gold/30"
+            : "bg-gray-200 text-gray-500"
         }`}
-        animate={isCurrent && enableAnimations ? { scale: [1, 1.05, 1] } : {}}
-        transition={{ duration: 2, repeat: Infinity }}
+        animate={
+          isCurrent && enableAnimations
+            ? {
+                scale: [1, 1.03, 1],
+                boxShadow: [
+                  "0 0 0 0 rgba(244,176,0,0.2)",
+                  "0 0 0 8px rgba(244,176,0,0.15)",
+                  "0 0 0 0 rgba(244,176,0,0.2)",
+                ],
+              }
+            : {}
+        }
+        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
         title={tooltip}
         aria-label={tooltip || label}
       >

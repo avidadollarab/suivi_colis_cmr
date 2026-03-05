@@ -2,16 +2,14 @@ import Link from "next/link";
 import { HeroBanner } from "@/components/HeroBanner";
 import { NextLoadingBanner } from "@/components/NextLoadingBanner";
 import { Section } from "@/components/Section";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { ServiceCard } from "@/components/ServiceCard";
 import { Button } from "@/components/Button";
 import { CTAButton } from "@/components/CTAButton";
-import { COMPANY, SERVICES, CITIES } from "@/data/company";
+import { COMPANY, MAIN_SERVICES, CITIES } from "@/data/company";
 import { MICRO_COPY } from "@/data/microCopy";
 import {
   IconBox,
-  IconBarrel,
-  IconCar,
-  IconTV,
   IconLocation,
   IconPhone,
   IconCalendar,
@@ -32,15 +30,6 @@ const PARCOURS = [
   { icon: <IconCheck size={24} strokeWidth={2} />, label: MICRO_COPY.parcours.livre.label, sub: MICRO_COPY.parcours.livre.sub },
 ];
 
-const SERVICE_ICONS: Record<string, React.ReactNode> = {
-  colis: <IconBox size={28} strokeWidth={1.5} />,
-  fut: <IconBarrel size={28} strokeWidth={1.5} />,
-  g1: <IconCar size={28} strokeWidth={1.5} />,
-  g2: <IconCar size={28} strokeWidth={1.5} />,
-  g3: <IconCar size={28} strokeWidth={1.5} />,
-  tv: <IconTV size={28} strokeWidth={1.5} />,
-};
-
 const FEATURES = [
   { icon: <IconLocation size={24} strokeWidth={1.5} />, title: MICRO_COPY.features.suivi.title, desc: MICRO_COPY.features.suivi.desc },
   { icon: <IconPhone size={24} strokeWidth={1.5} />, title: MICRO_COPY.features.alertes.title, desc: MICRO_COPY.features.alertes.desc },
@@ -58,7 +47,7 @@ export default function HomePage() {
 
       {/* Parcours - 5 étapes avec icônes vectorielles */}
       <section className="bg-white border-b border-gray-200 py-8">
-        <div className="max-w-5xl mx-auto px-4 flex flex-wrap items-center justify-center gap-2 md:gap-0">
+        <ScrollReveal className="max-w-5xl mx-auto px-4 flex flex-wrap items-center justify-center gap-2 md:gap-0">
           {PARCOURS.map((etape, i) => (
             <div key={i} className="flex items-center">
               <div className="flex flex-col items-center min-w-[100px] group">
@@ -73,21 +62,21 @@ export default function HomePage() {
               )}
             </div>
           ))}
-        </div>
+        </ScrollReveal>
       </section>
 
-      {/* Tarifs - ServiceCard avec icônes */}
+      {/* Tarifs - 3 cartes principales avec images */}
       <Section title={MICRO_COPY.services.title} subtitle={MICRO_COPY.services.subtitle}>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {SERVICES.map((service, i) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {MAIN_SERVICES.map((service, i) => (
             <ServiceCard
               key={service.id}
               title={service.title}
               description={service.description}
               price={service.price}
-              cta={MICRO_COPY.services.cta}
+              cta={service.cta}
               href={`${COMPANY.whatsappUrl}?text=Bonjour, je souhaite un devis pour ${service.title}`}
-              icon={SERVICE_ICONS[service.id] ?? <IconBox size={28} />}
+              image={service.image}
               featured={i === 0}
               index={i}
             />
@@ -104,7 +93,7 @@ export default function HomePage() {
 
       {/* Pourquoi ELISÉE XPRESS LOG */}
       <section className="bg-white py-16">
-        <div className="container mx-auto px-4 max-w-6xl">
+        <ScrollReveal className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
             <p className="text-xs font-bold uppercase tracking-widest text-gold-dark mb-2">{MICRO_COPY.features.title}</p>
             <h2 className="text-2xl md:text-3xl font-bold text-primary">{MICRO_COPY.features.subtitle}</h2>
@@ -124,12 +113,12 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Réseau de collecte */}
       <section className="py-16" style={{ background: "linear-gradient(160deg, #003d7a 0%, #0052A6 100%)" }}>
-        <div className="container mx-auto px-4 max-w-4xl text-center text-white">
+        <ScrollReveal className="container mx-auto px-4 max-w-4xl text-center text-white">
           <p className="text-gold font-bold text-xs uppercase tracking-widest mb-2">{MICRO_COPY.network.label}</p>
           <h2 className="text-2xl font-bold mb-2">{MICRO_COPY.network.title}</h2>
           <p className="text-white/80 text-sm mb-8">{MICRO_COPY.network.subtitle}</p>
@@ -148,16 +137,16 @@ export default function HomePage() {
             </span>
           </div>
           <p className="text-white/60 text-sm">{MICRO_COPY.network.hint}</p>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* CTA Contact */}
       <section className="bg-primary py-16 text-white">
-        <div className="container mx-auto px-4 max-w-6xl text-center">
+        <ScrollReveal className="container mx-auto px-4 max-w-6xl text-center">
           <h2 className="text-2xl font-bold mb-4">{MICRO_COPY.contact.title}</h2>
           <p className="text-white/90 mb-6 max-w-xl mx-auto">{MICRO_COPY.contact.subtitle}</p>
           <CTAButton href={COMPANY.whatsappUrl} label={MICRO_COPY.contact.whatsapp} phone={COMPANY.whatsapp} />
-        </div>
+        </ScrollReveal>
       </section>
     </>
   );

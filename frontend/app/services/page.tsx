@@ -41,10 +41,10 @@ export default function ServicesPage() {
         </div>
 
         <div className="mt-16 text-center bg-primary/5 rounded-2xl p-8 border border-primary/10">
-          <h3 className="text-xl font-bold text-primary mb-2">Groupage Premium</h3>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <h3 className="text-xl font-bold text-primary mb-2">Groupage Premium — Corridor Europe → Cameroun</h3>
+          <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Notre service de groupage vous permet d&apos;optimiser les coûts en partageant un conteneur avec
-            d&apos;autres expéditeurs. Idéal pour les particuliers et les petits envois.
+            d&apos;autres expéditeurs. Idéal pour les particuliers et les petits envois, de l&apos;Europe jusqu&apos;au Cameroun.
           </p>
           <a href={COMPANY.whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-6">
             <Button variant="primary" size="lg">

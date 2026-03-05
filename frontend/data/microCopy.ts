@@ -6,7 +6,7 @@
 export const MICRO_COPY = {
   // Page d'accueil
   hero: {
-    badge: "Europe · Groupage Premium · Afrique",
+    badge: "Europe · Groupage Premium · Cameroun",
     title: "Votre colis entre de bonnes mains, garanti.",
     subtitle: "Suivi mis à jour en temps réel, du ramassage en Europe jusqu'à la livraison à votre porte en Afrique.",
     searchPlaceholder: "Ex : EXL-2026-00147",
@@ -34,7 +34,7 @@ export const MICRO_COPY = {
   // Services / Tarifs
   services: {
     title: "Nos tarifs Groupage Premium",
-    subtitle: "Colis, fûts, véhicules, électroménager — nous nous occupons de tout.",
+    subtitle: "Corridor Europe → Cameroun. Colis, fûts, véhicules, électroménager — nous nous occupons de tout.",
     popular: "POPULAIRE",
     cta: "Demander un devis",
     viewAll: "Voir tous les services",
@@ -44,7 +44,7 @@ export const MICRO_COPY = {
   features: {
     title: "Pourquoi ELISÉE XPRESS LOG",
     subtitle: "Le Groupage Premium, c'est quoi ?",
-    desc: "Un service fiable, transparent et régulier — depuis l'Allemagne vers l'Afrique.",
+    desc: "Un service fiable, transparent et régulier — corridor Europe → Cameroun, depuis l'Allemagne.",
     suivi: {
       title: "Suivi en temps réel",
       desc: "Statut actualisé à chaque étape. Consultez l'état de votre envoi 24h/24 depuis notre site.",

@@ -28,6 +28,12 @@
   body {
     @apply antialiased text-gray-800 bg-white;
   }
+
+  /* Typographie : line-height confortable pour les textes descriptifs */
+  .prose p,
+  .text-description {
+    line-height: 1.65;
+  }
 }
 
 @layer components {

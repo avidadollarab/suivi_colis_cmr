@@ -1,4 +1,7 @@
+"use client";
+
 import { ReactNode } from "react";
+import { ScrollReveal } from "./ScrollReveal";
 
 interface SectionProps {
   children: ReactNode;
@@ -17,7 +20,7 @@ export function Section({
 }: SectionProps) {
   return (
     <section id={id} className={`py-16 md:py-24 ${className}`}>
-      <div className="container mx-auto px-4 max-w-6xl">
+      <ScrollReveal className="container mx-auto px-4 max-w-6xl">
         {(title || subtitle) && (
           <div className="text-center mb-12">
             {title && (
@@ -26,12 +29,14 @@ export function Section({
               </h2>
             )}
             {subtitle && (
-              <p className="text-gray-600 max-w-2xl mx-auto">{subtitle}</p>
+              <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                {subtitle}
+              </p>
             )}
           </div>
         )}
         {children}
-      </div>
+      </ScrollReveal>
     </section>
   );
 }
