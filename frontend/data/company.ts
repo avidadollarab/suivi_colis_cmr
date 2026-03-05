@@ -45,7 +45,7 @@ export const MAIN_SERVICES = [
     description: "Fûts industriels et conteneurs — optimisez vos envois.",
     price: "175€",
     cta: "Sur devis",
-    image: "https://images.unsplash.com/photo-1553413077-190a71098257?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=600&q=80",
   },
 ];
 
