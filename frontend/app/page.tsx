@@ -77,6 +77,7 @@ export default function HomePage() {
               cta={service.cta}
               href={`${COMPANY.whatsappUrl}?text=Bonjour, je souhaite un devis pour ${service.title}`}
               image={service.image}
+              imageAlt={(service as { imageAlt?: string }).imageAlt}
               featured={i === 0}
               index={i}
             />

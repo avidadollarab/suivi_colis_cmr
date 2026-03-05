@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
+import { ServiceCardImage } from "./ServiceCardImage";
 import { Button } from "./Button";
 
 interface ServiceCardProps {
@@ -12,6 +12,7 @@ interface ServiceCardProps {
   href: string;
   icon?: React.ReactNode;
   image?: string;
+  imageAlt?: string;
   featured?: boolean;
   enableAnimations?: boolean;
   index?: number;
@@ -25,6 +26,7 @@ export function ServiceCard({
   href,
   icon,
   image,
+  imageAlt,
   featured = false,
   enableAnimations = true,
   index = 0,
@@ -63,15 +65,11 @@ export function ServiceCard({
       {/* Image ou icône */}
       <div className="relative overflow-hidden bg-gray-50 flex-shrink-0">
         {image ? (
-          <div className="aspect-[4/3] relative overflow-hidden">
-            <Image
-              src={image}
-              alt={title}
-              fill
-              className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-              sizes="(max-width: 768px) 100vw, 33vw"
-            />
-          </div>
+          <ServiceCardImage
+            src={image}
+            alt={imageAlt ?? `${title} - visuel du service`}
+            title={title}
+          />
         ) : (
           <div className="w-14 h-14 rounded-xl bg-primary/5 flex items-center justify-center text-primary m-4 group-hover:scale-105 transition-transform duration-200">
             {icon}

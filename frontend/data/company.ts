@@ -21,7 +21,15 @@ export const SERVICES = [
   { id: "tv", title: "TV / Électroménager", description: "Téléviseurs et appareils", price: "à partir de 60€", cta: "Demander un devis" },
 ];
 
-/** 3 cartes principales pour la page d'accueil (avec images) */
+/**
+ * Images des cartes Services — URLs Unsplash vérifiées
+ *
+ * Pour utiliser des images locales, placez les fichiers dans :
+ *   public/images/services/livraison.jpg
+ *   public/images/services/vehicules.jpg
+ *   public/images/services/groupage.jpg
+ * Puis modifiez les valeurs ci-dessous pour utiliser /images/services/{id}.jpg
+ */
 export const MAIN_SERVICES = [
   {
     id: "livraison",
@@ -29,7 +37,8 @@ export const MAIN_SERVICES = [
     description: "Transport porte-à-porte professionnel. Ramassage et livraison à votre adresse.",
     price: "à partir de 40€",
     cta: "Sur devis",
-    image: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&q=80",
+    imageAlt: "Livraison à domicile - camion de livraison professionnel",
   },
   {
     id: "vehicules",
@@ -37,7 +46,8 @@ export const MAIN_SERVICES = [
     description: "Vos véhicules voyagent en toute sécurité, de l'Europe au Cameroun.",
     price: "à partir de 1000€",
     cta: "Sur devis",
-    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=80",
+    imageAlt: "Véhicules G1 G2 G3 - transport de voitures Europe Cameroun",
   },
   {
     id: "groupage",
@@ -45,7 +55,8 @@ export const MAIN_SERVICES = [
     description: "Fûts industriels et conteneurs — optimisez vos envois.",
     price: "175€",
     cta: "Sur devis",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=600&q=80",
+    imageAlt: "Porte-conteneurs pour groupage maritime 220L",
   },
 ];
 
