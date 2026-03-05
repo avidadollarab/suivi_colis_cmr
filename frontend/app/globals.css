@@ -68,4 +68,57 @@
     color: rgb(0, 61, 122);
     font-weight: 600;
   }
+
+  /* Bouton hero glass — transparent sur fond vidéo/image sombre */
+  .btn-hero-glass {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    border-radius: 9999px;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    transition: all 200ms ease;
+  }
+  .btn-hero-glass:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.7);
+    transform: scale(1.03);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  }
+  .btn-hero-glass:active {
+    transform: scale(0.97);
+  }
+  .btn-hero-glass:focus-visible {
+    outline: 2px solid #f4b000;
+    outline-offset: 2px;
+  }
+
+  /* Champ hero glass — conteneur du numéro de suivi */
+  .input-hero-glass {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 9999px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    transition: all 200ms ease;
+  }
+  .input-hero-glass:focus-within {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: #f4b000;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(244, 176, 0, 0.2);
+  }
+  .input-hero-glass input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .input-hero-glass input {
+    background: transparent;
+    color: white;
+    border: none;
+  }
+  .input-hero-glass input:focus {
+    outline: none;
+  }
+  .input-hero-glass input:focus-visible {
+    outline: 2px solid #f4b000;
+    outline-offset: 2px;
+  }
 }

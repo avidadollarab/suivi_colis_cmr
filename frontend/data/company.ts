@@ -24,12 +24,12 @@ export const SERVICES = [
 /** 3 cartes principales pour la page d'accueil (avec images) */
 export const MAIN_SERVICES = [
   {
-    id: "colis",
-    title: "Envoi de colis",
-    description: "Des colis protégés et suivis à chaque étape.",
+    id: "livraison",
+    title: "Livraison à domicile",
+    description: "Transport porte-à-porte professionnel. Ramassage et livraison à votre adresse.",
     price: "à partir de 40€",
     cta: "Sur devis",
-    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&q=80",
   },
   {
     id: "vehicules",
@@ -45,7 +45,7 @@ export const MAIN_SERVICES = [
     description: "Fûts industriels et conteneurs — optimisez vos envois.",
     price: "175€",
     cta: "Sur devis",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=600&q=80",
   },
 ];
 

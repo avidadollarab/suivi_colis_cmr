@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes, ReactNode } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "gold" | "secondary" | "outline" | "glass";
+  variant?: "primary" | "gold" | "secondary" | "outline" | "glass" | "heroGlass";
   size?: "sm" | "md" | "lg";
   children: ReactNode;
   className?: string;
@@ -20,6 +20,8 @@ const variants = {
     "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-white hover:scale-[1.02] active:scale-[0.97]",
   glass:
     "btn-glass rounded-full",
+  heroGlass:
+    "btn-hero-glass rounded-full",
 };
 
 const sizes = {
@@ -45,7 +47,7 @@ export function Button({
 }: ButtonProps) {
   const baseClasses =
     "inline-flex items-center justify-center font-semibold transition-smooth cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
-  const sizeClasses = variant === "glass" ? sizesGlass[size] : sizes[size];
+  const sizeClasses = variant === "glass" || variant === "heroGlass" ? sizesGlass[size] : sizes[size];
   const combinedClasses = `${baseClasses} ${variants[variant]} ${sizeClasses} ${className}`;
 
   if (as === "a" && href) {

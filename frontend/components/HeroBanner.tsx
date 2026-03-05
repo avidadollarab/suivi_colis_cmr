@@ -161,11 +161,7 @@ export function HeroBanner({ enableAnimations = true }: HeroBannerProps) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button
-              variant="gold"
-              size="lg"
-              className="shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.97] transition-all duration-200"
-            >
+            <Button variant="heroGlass" size="lg">
               Demander un devis
             </Button>
           </a>
@@ -173,6 +169,7 @@ export function HeroBanner({ enableAnimations = true }: HeroBannerProps) {
             href={COMPANY.whatsappUrl}
             label="WhatsApp"
             phone={COMPANY.whatsapp}
+            variant="heroGlass"
           />
         </motion.div>
 
@@ -191,6 +188,7 @@ export function HeroBanner({ enableAnimations = true }: HeroBannerProps) {
           <TrackingSearch
             size="lg"
             placeholder={MICRO_COPY.hero.searchPlaceholder}
+            variant="heroGlass"
           />
         </motion.div>
 
