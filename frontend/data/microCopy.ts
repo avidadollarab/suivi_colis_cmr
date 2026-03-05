@@ -17,7 +17,7 @@ export const MICRO_COPY = {
 
   // Bannière chargement
   loadingBanner: {
-    text: "Prochain chargement :",
+    text: "Groupage Premium - Prochain départ :",
     date: "8 Mars 2026",
     cta: "Réservez votre place avant le 6 Mars",
   },

@@ -121,4 +121,29 @@
     outline: 2px solid #f4b000;
     outline-offset: 2px;
   }
+
+  /* Badge prochain départ — barre dorée moderne */
+  .badge-depart {
+    background: linear-gradient(90deg, rgba(249, 216, 107, 0.95) 0%, rgba(244, 176, 0, 0.95) 50%, rgba(242, 154, 0, 0.95) 100%);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 9999px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    min-height: 44px;
+    max-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  @media (min-width: 768px) {
+    .badge-depart {
+      font-size: 16px;
+      padding: 0.6rem 1.25rem;
+    }
+  }
 }
