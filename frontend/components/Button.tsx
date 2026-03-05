@@ -11,13 +11,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants = {
   primary:
-    "bg-primary hover:bg-primary-dark text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0",
+    "bg-primary hover:bg-primary-dark text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.97] active:translate-y-0",
   gold:
-    "bg-gold hover:bg-gold-dark text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0",
+    "bg-gold hover:bg-gold-dark text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.97] active:translate-y-0",
   secondary:
-    "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-200 active:scale-[0.98]",
+    "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-200 hover:scale-[1.02] active:scale-[0.97]",
   outline:
-    "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-white active:scale-[0.98]",
+    "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-white hover:scale-[1.02] active:scale-[0.97]",
 };
 
 const sizes = {

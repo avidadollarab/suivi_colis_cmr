@@ -37,7 +37,7 @@ export const MAIN_SERVICES = [
     description: "Vos véhicules voyagent en toute sécurité, de l'Europe au Cameroun.",
     price: "à partir de 1000€",
     cta: "Sur devis",
-    image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&q=80",
   },
   {
     id: "groupage",
@@ -45,7 +45,7 @@ export const MAIN_SERVICES = [
     description: "Fûts industriels et conteneurs — optimisez vos envois.",
     price: "175€",
     cta: "Sur devis",
-    image: "https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80",
   },
 ];
 

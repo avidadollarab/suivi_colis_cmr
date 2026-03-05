@@ -41,15 +41,15 @@ export function ServiceCard({
       whileHover={
         enableAnimations
           ? {
-              y: -6,
-              transition: { duration: 0.25 },
-              boxShadow: "0 20px 50px rgba(0,82,166,0.15)",
+              y: -4,
+              transition: { duration: 0.22 },
+              boxShadow: "0 16px 40px rgba(0,82,166,0.12)",
             }
           : undefined
       }
       className={`
-        group relative bg-white rounded-2xl border overflow-hidden
-        transition-all duration-300 ease-out
+        group relative bg-white rounded-2xl border overflow-hidden flex flex-col
+        transition-all duration-[250ms] ease-out
         ${featured ? "border-gold/50 ring-2 ring-gold/20" : "border-gray-200"}
       `}
       style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}
@@ -61,7 +61,7 @@ export function ServiceCard({
       )}
 
       {/* Image ou icône */}
-      <div className="relative overflow-hidden bg-gray-50">
+      <div className="relative overflow-hidden bg-gray-50 flex-shrink-0">
         {image ? (
           <div className="aspect-[4/3] relative overflow-hidden">
             <Image
@@ -79,15 +79,15 @@ export function ServiceCard({
         )}
       </div>
 
-      <div className="p-6">
+      <div className="flex flex-col flex-1 min-h-0 p-6">
         <h3 className="font-bold text-lg text-primary">{title}</h3>
-        <p className="text-gray-600 text-sm mt-1 leading-relaxed">{description}</p>
-        <p className="text-gold font-bold text-xl mt-3">{price}</p>
-        <a href={href} target="_blank" rel="noopener noreferrer" className="block mt-4">
+        <p className="text-gray-600 text-sm mt-1 leading-relaxed flex-shrink-0">{description}</p>
+        <p className="text-gold font-bold text-xl mt-3 flex-shrink-0">{price}</p>
+        <a href={href} target="_blank" rel="noopener noreferrer" className="block mt-auto pt-4">
           <Button
             variant="gold"
             size="sm"
-            className="w-full transition-all duration-200 hover:shadow-lg active:scale-[0.98]"
+            className="w-full transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.97]"
           >
             {cta}
           </Button>
