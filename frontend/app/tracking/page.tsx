@@ -29,7 +29,7 @@ function TrackingContent() {
   // Pas de numéro : afficher le formulaire
   if (!numeroParam) {
     return (
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-white">
         <ScrollReveal className="container mx-auto px-4 max-w-2xl text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-primary mb-4">
             {MICRO_COPY.tracking.title}
@@ -57,7 +57,7 @@ function TrackingContent() {
   // Numéro invalide / introuvable
   if (!shipment) {
     return (
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-white">
         <div className="container mx-auto px-4 max-w-xl">
           <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-8 text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
@@ -72,7 +72,7 @@ function TrackingContent() {
             <div className="space-y-3">
               <TrackingSearch size="sm" placeholder={MICRO_COPY.hero.searchPlaceholder} />
               <Link href="/">
-                <Button variant="secondary">{MICRO_COPY.tracking.notFound.back}</Button>
+                <Button variant="glass" size="md">{MICRO_COPY.tracking.notFound.back}</Button>
               </Link>
             </div>
           </div>
@@ -83,7 +83,7 @@ function TrackingContent() {
 
   // Résultat trouvé
   return (
-    <section className="py-12 md:py-16">
+    <section className="py-12 md:py-16 bg-gradient-to-b from-primary/5 to-white min-h-[60vh]">
       <ScrollReveal className="container mx-auto px-4 max-w-5xl">
         <TrackingResult shipment={shipment} />
       </ScrollReveal>

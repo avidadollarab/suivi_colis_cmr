@@ -174,7 +174,7 @@ export function TrackingResult({ shipment, enableAnimations = true }: TrackingRe
 
       <div className="text-center">
         <Link href="/">
-          <Button variant="outline" size="lg">
+          <Button variant="glass" size="lg">
             ← {MICRO_COPY.tracking.timeline.newSearch}
           </Button>
         </Link>

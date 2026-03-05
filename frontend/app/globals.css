@@ -44,4 +44,28 @@
   .transition-fast {
     @apply transition-all duration-200 ease-out;
   }
+
+  /* Bouton glassmorphism — style semi-transparent pour page suivi */
+  .btn-glass {
+    background-color: rgba(0, 70, 150, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: rgb(0, 61, 122);
+    border-radius: 999px;
+    font-weight: 600;
+    transition: all 200ms ease;
+  }
+  .btn-glass:hover {
+    background-color: rgba(0, 70, 150, 0.55);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: scale(1.02);
+  }
+  .btn-glass:active {
+    transform: scale(0.97);
+  }
+  .btn-glass-active {
+    background-color: rgba(0, 70, 150, 0.75);
+    border-color: #f4b000;
+    color: rgb(0, 61, 122);
+    font-weight: 600;
+  }
 }
