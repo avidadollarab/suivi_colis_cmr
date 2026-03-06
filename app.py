@@ -14,6 +14,7 @@ except ImportError:
     pass  # python-dotenv non installé, variables d'env manuelles
 from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response, jsonify
 from flask_cors import CORS
+from functools import wraps
 from database import (
     initialiser,
     ajouter_client, ajouter_destinataire,
@@ -28,7 +29,25 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "cmr-suivi-secret-local-2024")
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
-CORS(app, origins=["*"], supports_credentials=False)  # API consommée par le frontend Next.js
+# CORS : frontend Next.js + localhost pour dev
+_ALLOWED_ORIGINS = [
+    "https://elisee-xpress-frontend.onrender.com",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+CORS(app, origins=_ALLOWED_ORIGINS, supports_credentials=True)
+
+# Token API pour frontend (auth sans cookies cross-origin)
+_API_TOKENS = {}  # token -> { agent_id, agent_nom, agent_role }
+
+
+def _get_agent_from_token():
+    """Récupère l'agent depuis le header Authorization Bearer."""
+    auth = request.headers.get("Authorization")
+    if not auth or not auth.startswith("Bearer "):
+        return None
+    token = auth[7:].strip()
+    return _API_TOKENS.get(token)
 
 
 @app.after_request
@@ -118,6 +137,249 @@ def api_suivi(numero):
         "dest_quartier": c.get("dest_quartier"),
         "historique": historique,
     })
+
+
+# ----------------------------------------------------------
+# API REST ADMIN (pour frontend Next.js)
+# ----------------------------------------------------------
+
+@app.route("/api/login", methods=["POST"])
+def api_login():
+    """Login API : retourne un token si identifiants valides."""
+    data = request.get_json() or {}
+    identifiant = data.get("identifiant", "").strip()
+    mot_de_passe = data.get("mot_de_passe", "")
+    if not identifiant or not mot_de_passe:
+        return jsonify({"error": "Identifiant et mot de passe requis"}), 400
+    agent = get_agent(identifiant, mot_de_passe)
+    if not agent:
+        return jsonify({"error": "Identifiant ou mot de passe incorrect"}), 401
+    import secrets
+    token = secrets.token_urlsafe(32)
+    _API_TOKENS[token] = {
+        "agent_id": agent["id"],
+        "agent_nom": f"{agent.get('prenom', '')} {agent.get('nom', '')}".strip(),
+        "agent_role": agent.get("role", "AGENT"),
+    }
+    return jsonify({
+        "ok": True,
+        "token": token,
+        "agent": {"nom": _API_TOKENS[token]["agent_nom"], "role": _API_TOKENS[token]["agent_role"]},
+    })
+
+
+@app.route("/api/logout", methods=["POST"])
+def api_logout():
+    """Invalide le token."""
+    auth = request.headers.get("Authorization")
+    if auth and auth.startswith("Bearer "):
+        token = auth[7:].strip()
+        _API_TOKENS.pop(token, None)
+    return jsonify({"ok": True})
+
+
+def _api_require_auth(f):
+    """Décorateur : exige un token valide."""
+    @wraps(f)
+    def inner(*args, **kwargs):
+        agent = _get_agent_from_token()
+        if not agent:
+            return jsonify({"error": "Non autorise"}), 401
+        return f(*args, **kwargs)
+    return inner
+
+
+def _agent_nom():
+    a = _get_agent_from_token()
+    return a["agent_nom"] if a else "Admin"
+
+
+@app.route("/api/admin/me")
+@_api_require_auth
+def api_admin_me():
+    """Vérifie le token et retourne l'agent connecté."""
+    a = _get_agent_from_token()
+    return jsonify({"ok": True, "agent": {"nom": a["agent_nom"], "role": a["agent_role"]}})
+
+
+@app.route("/api/admin/colis")
+@_api_require_auth
+def api_admin_colis():
+    """Liste tous les colis."""
+    colis = tous_les_colis()
+    stats = {
+        "total": len(colis),
+        "ramasse": sum(1 for c in colis if c["statut"] == "RAMASSE"),
+        "en_conteneur": sum(1 for c in colis if c["statut"] == "EN_CONTENEUR"),
+        "parti": sum(1 for c in colis if c["statut"] == "PARTI"),
+        "arrive": sum(1 for c in colis if c["statut"] == "ARRIVE"),
+        "livre": sum(1 for c in colis if c["statut"] == "LIVRE"),
+        "non_paye": sum(1 for c in colis if not c.get("est_paye")),
+    }
+    items = []
+    for c in colis:
+        items.append({
+            "numero_suivi": c["numero_suivi"],
+            "statut": c["statut"],
+            "description": c.get("description", ""),
+            "poids_kg": c.get("poids_kg"),
+            "date_creation": (c.get("date_creation") or "")[:10],
+            "prix_total": c.get("prix_total"),
+            "est_paye": bool(c.get("est_paye")),
+            "client_nom": c.get("client_nom", ""),
+            "client_prenom": c.get("client_prenom", ""),
+            "dest_ville": c.get("dest_ville", ""),
+        })
+    return jsonify({"colis": items, "stats": stats})
+
+
+@app.route("/api/admin/colis/<numero_suivi>")
+@_api_require_auth
+def api_admin_colis_detail(numero_suivi):
+    """Détail d'un colis."""
+    resultat = consulter_colis(numero_suivi)
+    if not resultat:
+        return jsonify({"error": "Colis introuvable"}), 404
+    c = resultat["colis"]
+    h = resultat["historique"]
+    statut_labels = {
+        "RAMASSE": "Ramassé", "EN_CONTENEUR": "En conteneur",
+        "PARTI": "Parti de France", "ARRIVE": "Arrivé au Cameroun", "LIVRE": "Livré",
+    }
+    historique = []
+    for i, evt in enumerate(h):
+        dt = (evt.get("date_action") or "")[:19].replace("T", " ")
+        historique.append({
+            "id": str(i + 1),
+            "statut": evt.get("statut", ""),
+            "label": statut_labels.get(evt.get("statut", ""), evt.get("statut", "")),
+            "date": dt[:10] if dt else "",
+            "heure": dt[11:16] if len(dt) > 11 else "--",
+            "lieu": evt.get("localisation"),
+            "message": evt.get("commentaire") or statut_labels.get(evt.get("statut", ""), ""),
+            "completed": True,
+        })
+    return jsonify({
+        "colis": {
+            "numero_suivi": c.get("numero_suivi"),
+            "description": c.get("description", ""),
+            "statut": c.get("statut", "RAMASSE"),
+            "poids_kg": c.get("poids_kg"),
+            "nombre_pieces": c.get("nombre_pieces", 1),
+            "prix_total": c.get("prix_total"),
+            "est_paye": bool(c.get("est_paye")),
+            "date_creation": (c.get("date_creation") or "")[:10],
+            "date_ramassage": (c.get("date_ramassage") or "")[:10] if c.get("date_ramassage") else None,
+            "date_conteneur": (c.get("date_conteneur") or "")[:10] if c.get("date_conteneur") else None,
+            "date_depart": (c.get("date_depart") or "")[:10] if c.get("date_depart") else None,
+            "date_arrivee": (c.get("date_arrivee") or "")[:10] if c.get("date_arrivee") else None,
+            "date_livraison": (c.get("date_livraison") or "")[:10] if c.get("date_livraison") else None,
+            "client_nom": c.get("client_nom", ""),
+            "client_prenom": c.get("client_prenom", ""),
+            "client_tel": c.get("client_tel", ""),
+            "dest_nom": c.get("dest_nom", ""),
+            "dest_prenom": c.get("dest_prenom", ""),
+            "dest_tel": c.get("dest_tel", ""),
+            "dest_ville": c.get("dest_ville", ""),
+            "dest_quartier": c.get("dest_quartier"),
+            "notes": c.get("notes"),
+        },
+        "historique": historique,
+    })
+
+
+@app.route("/api/admin/colis", methods=["POST"])
+@_api_require_auth
+def api_admin_colis_create():
+    """Créer un nouveau colis."""
+    data = request.get_json() or {}
+    id_client = ajouter_client(
+        nom=data.get("client_nom", ""),
+        prenom=data.get("client_prenom", ""),
+        telephone=data.get("client_telephone", ""),
+        email=data.get("client_email"),
+        adresse=data.get("client_adresse"),
+        ville=data.get("client_ville"),
+        pays=data.get("client_pays", "France"),
+    )
+    id_dest = ajouter_destinataire(
+        nom=data.get("dest_nom", ""),
+        prenom=data.get("dest_prenom", ""),
+        telephone=data.get("dest_telephone", ""),
+        ville=data.get("dest_ville", ""),
+        adresse=data.get("dest_adresse"),
+        quartier=data.get("dest_quartier"),
+    )
+    poids = float(data["poids"]) if data.get("poids") else None
+    prix = float(data["prix"]) if data.get("prix") else None
+    pieces = int(data.get("nb_pieces", 1))
+    numero = enregistrer_colis(
+        id_client=id_client,
+        id_destinataire=id_dest,
+        description=data.get("description", ""),
+        poids=poids,
+        nb_pieces=pieces,
+        prix=prix,
+        notes=data.get("notes"),
+    )
+    return jsonify({"ok": True, "numero_suivi": numero})
+
+
+@app.route("/api/admin/colis/<numero_suivi>/statut", methods=["POST"])
+@_api_require_auth
+def api_admin_colis_statut(numero_suivi):
+    """Mettre à jour le statut d'un colis."""
+    data = request.get_json() or {}
+    nouveau_statut = data.get("statut")
+    if not nouveau_statut:
+        return jsonify({"error": "statut requis"}), 400
+    succes = mettre_a_jour_statut(
+        numero_suivi,
+        nouveau_statut,
+        commentaire=data.get("commentaire"),
+        agent=_agent_nom(),
+        localisation=data.get("localisation"),
+    )
+    if not succes:
+        return jsonify({"error": "Mise a jour impossible"}), 400
+    resultat = consulter_colis(numero_suivi)
+    if resultat:
+        c = resultat["colis"]
+        try:
+            envoyer_notifications(
+                numero_suivi=numero_suivi,
+                nouveau_statut=nouveau_statut,
+                tel_expediteur=c["client_tel"],
+                tel_destinataire=c["dest_tel"],
+                ville_destinataire=c["dest_ville"],
+            )
+        except Exception:
+            pass
+    return jsonify({"ok": True, "statut": nouveau_statut})
+
+
+@app.route("/api/admin/colis/<numero_suivi>/paiement", methods=["POST"])
+@_api_require_auth
+def api_admin_colis_paiement(numero_suivi):
+    """Marquer un colis comme payé."""
+    marquer_paye(numero_suivi)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/admin/clients")
+@_api_require_auth
+def api_admin_clients():
+    """Liste des clients (pour formulaire nouveau colis)."""
+    clients = tous_les_clients()
+    return jsonify({"clients": clients})
+
+
+@app.route("/api/admin/destinataires")
+@_api_require_auth
+def api_admin_destinataires():
+    """Liste des destinataires."""
+    destinataires = tous_les_destinataires()
+    return jsonify({"destinataires": destinataires})
 
 
 @app.route("/health")

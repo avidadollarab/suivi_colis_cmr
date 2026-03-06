@@ -50,7 +50,7 @@ export function Header() {
                 );
               })}
               <Link
-                href="/#suivi"
+                href="/tracking"
                 className={`ml-2 px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.97] ${
                   pathname === "/tracking"
                     ? "bg-gold-dark text-white ring-2 ring-gold"
@@ -58,6 +58,12 @@ export function Header() {
                 }`}
               >
                 Suivre un colis
+              </Link>
+              <Link
+                href="/admin"
+                className="ml-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary"
+              >
+                Admin
               </Link>
             </nav>
 
@@ -111,7 +117,7 @@ export function Header() {
                 );
               })}
               <Link
-                href="/#suivi"
+                href="/tracking"
                 onClick={() => setMobileOpen(false)}
                 className={`mx-4 mt-2 px-5 py-3 font-semibold rounded-xl text-center transition-all ${
                   pathname === "/tracking"
@@ -120,6 +126,13 @@ export function Header() {
                 }`}
               >
                 Suivre un colis
+              </Link>
+              <Link
+                href="/admin"
+                onClick={() => setMobileOpen(false)}
+                className="mx-4 mt-2 px-5 py-3 text-sm font-medium text-gray-600"
+              >
+                Admin
               </Link>
             </nav>
           )}

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { ChatbotWidget } from "@/components/ChatbotWidget";
+import { ConditionalLayout } from "@/components/ConditionalLayout";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,10 +23,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className={inter.variable}>
       <body className="font-sans min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <ChatbotWidget />
+        <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>
   );
