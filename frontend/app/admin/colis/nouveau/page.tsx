@@ -1,15 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { apiAdminColisCreate, apiClient } from "@/data/api";
+import { apiAdminColisCreate, apiClient, apiAdminClients } from "@/data/api";
 import { Button } from "@/components/Button";
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debouncedValue;
+}
 
 export default function NouveauColisPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [clientSearch, setClientSearch] = useState("");
+  const [clientResults, setClientResults] = useState<Array<Record<string, unknown>>>([]);
+  const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
+  const debouncedClientSearch = useDebounce(clientSearch, 300);
   const [form, setForm] = useState({
     client_nom: "",
     client_prenom: "",
@@ -38,6 +52,7 @@ export default function NouveauColisPage() {
     if (clientIdParam) {
       const id = parseInt(clientIdParam, 10);
       if (id) {
+        setSelectedClientId(id);
         apiClient(id)
           .then((d) => {
             if (d?.client) {
@@ -58,6 +73,32 @@ export default function NouveauColisPage() {
       }
     }
   }, [clientIdParam]);
+
+  useEffect(() => {
+    if (debouncedClientSearch.length >= 2) {
+      apiAdminClients(debouncedClientSearch)
+        .then((list) => setClientResults(Array.isArray(list) ? list : []))
+        .catch(() => setClientResults([]));
+    } else {
+      setClientResults([]);
+    }
+  }, [debouncedClientSearch]);
+
+  const selectClient = useCallback((c: Record<string, unknown>) => {
+    setSelectedClientId(Number(c.id));
+    setForm((f) => ({
+      ...f,
+      client_nom: String(c.nom || ""),
+      client_prenom: String(c.prenom || ""),
+      client_telephone: String(c.telephone || ""),
+      client_email: String(c.email || ""),
+      client_adresse: String(c.adresse_europe || ""),
+      client_ville: String(c.ville_europe || ""),
+      client_pays: String(c.pays_europe || "France"),
+    }));
+    setClientSearch("");
+    setShowClientDropdown(false);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -102,6 +143,40 @@ export default function NouveauColisPage() {
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <div>
             <h2 className="text-lg font-semibold text-primary mb-4">Expéditeur (client)</h2>
+            <div className="mb-4 relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Chercher un client existant</label>
+              <input
+                type="text"
+                value={clientSearch}
+                onChange={(e) => {
+                  setClientSearch(e.target.value);
+                  setShowClientDropdown(true);
+                }}
+                onFocus={() => debouncedClientSearch.length >= 2 && setShowClientDropdown(true)}
+                onBlur={() => setTimeout(() => setShowClientDropdown(false), 200)}
+                placeholder="Nom, prénom ou téléphone…"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary outline-none"
+              />
+              {showClientDropdown && clientResults.length > 0 && (
+                <ul className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto">
+                  {clientResults.map((c) => (
+                    <li key={String(c.id)}>
+                      <button
+                        type="button"
+                        onClick={() => selectClient(c)}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0"
+                      >
+                        <span className="font-medium">{String(c.prenom || "")} {String(c.nom || "")}</span>
+                        <span className="text-gray-600 text-sm ml-2">{String(c.telephone || "")}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {selectedClientId && (
+              <p className="text-sm text-green-600 mb-2">Client sélectionné — vous pouvez modifier les champs ci-dessous.</p>
+            )}
             <div className="space-y-3">
               <Input label="Nom" name="client_nom" value={form.client_nom} onChange={handleChange} required />
               <Input label="Prénom" name="client_prenom" value={form.client_prenom} onChange={handleChange} required />

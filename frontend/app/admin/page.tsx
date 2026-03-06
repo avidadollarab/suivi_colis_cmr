@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { apiAdminColis, apiAdminReportsDownload } from "@/data/api";
+import { AdminClientSearchCompact } from "@/components/AdminClientSearchCompact";
 
 const LABELS: Record<string, string> = {
   RAMASSE: "Ramassé",
@@ -98,7 +99,7 @@ export default function AdminDashboardPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `rapport_colis_${exportFrom.replace(/-/g, "")}-${exportTo.replace(/-/g, "")}.csv`;
+      a.download = `ELISEE_XPRESS_LOG_rapport_colis_${exportFrom.replace(/-/g, "")}_${exportTo.replace(/-/g, "")}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -140,7 +141,7 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
 
-      {/* Barre de recherche */}
+      {/* Barre de recherche colis */}
       <div className="mb-6">
         <input
           type="search"
@@ -151,8 +152,13 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      {/* Boîtes de synthèse cliquables + filtre actif */}
-      <div className="flex flex-wrap items-center gap-2 mb-6">
+      {/* Recherche clients fidèles */}
+      <div className="mb-6">
+        <AdminClientSearchCompact />
+      </div>
+
+      {/* Boîtes de synthèse cliquables — grille symétrique */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 min-h-[100px]">
         <StatCard
           label="Total"
           value={stats.total}
@@ -171,15 +177,17 @@ export default function AdminDashboardPage() {
             clickable
           />
         ))}
-        {statusFilter && (
+      </div>
+      {statusFilter && (
+        <div className="mb-4">
           <button
             onClick={() => setStatusFilter(null)}
             className="px-4 py-2 text-sm font-medium text-primary border-2 border-primary rounded-xl hover:bg-primary/5"
           >
             Tous les colis
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {stats.non_paye > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-amber-800">
@@ -352,20 +360,17 @@ function StatCard({
     </>
   );
 
+  const baseClass = `rounded-xl border-2 p-4 text-left min-h-[88px] flex flex-col justify-center transition ${colorClass}`;
   if (clickable && onClick) {
     return (
       <button
         type="button"
         onClick={onClick}
-        className={`rounded-xl border-2 p-4 text-left transition ${colorClass} ${activeClass} ${cursorClass}`}
+        className={`${baseClass} ${activeClass} ${cursorClass}`}
       >
         {content}
       </button>
     );
   }
-  return (
-    <div className={`rounded-xl border-2 p-4 ${colorClass}`}>
-      {content}
-    </div>
-  );
+  return <div className={baseClass}>{content}</div>;
 }

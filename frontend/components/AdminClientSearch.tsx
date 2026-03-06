@@ -100,12 +100,20 @@ export function AdminClientSearch() {
                   {[c.ville_europe, c.pays_europe].filter(Boolean).join(", ")}
                 </div>
               )}
-              <Link
-                href={`/client/${c.id}`}
-                className="mt-3 block w-full text-center py-2 rounded-lg bg-primary/10 text-primary font-semibold text-sm hover:bg-primary/20 transition btn-glow"
-              >
-                Voir les colis
-              </Link>
+              <div className="mt-3 flex gap-2">
+                <Link
+                  href={`/client/${c.id}`}
+                  className="flex-1 text-center py-2 rounded-lg bg-primary/10 text-primary font-semibold text-sm hover:bg-primary/20 transition"
+                >
+                  Voir les colis
+                </Link>
+                <Link
+                  href={`/admin/colis/nouveau?client_id=${c.id}`}
+                  className="flex-1 text-center py-2 rounded-lg bg-green-600 text-white font-semibold text-sm hover:bg-green-700 transition"
+                >
+                  Nouvel envoi
+                </Link>
+              </div>
             </div>
           ))}
         </div>

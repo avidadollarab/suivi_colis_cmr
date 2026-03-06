@@ -458,14 +458,20 @@ def api_admin_reports():
     rows = rapport_colis(date_from, date_to, type_rapport=report_type)
     buffer = StringIO()
     w = csv_writer(buffer)
+    # En-tête brandé ELISÉE XPRESS LOG
+    w.writerow(["ELISÉE XPRESS LOG"])
+    w.writerow(["Suivi de colis France → Cameroun | Groupage Premium"])
+    period_fr = f"Rapport du {date_from[8:10]}/{date_from[5:7]}/{date_from[:4]} au {date_to[8:10]}/{date_to[5:7]}/{date_to[:4]}"
+    w.writerow([period_fr])
+    w.writerow([])
     if report_type == "summary":
-        w.writerow(["Statut", "Nombre"])
+        w.writerow(["Statut", "Nombre de colis"])
         for r in rows:
             w.writerow([r.get("statut", ""), r.get("nb", 0)])
     else:
         w.writerow([
-            "Date création", "N° Suivi", "Client", "Téléphone", "Ville destination",
-            "Statut", "Description", "Poids (kg)", "Prix (€)", "Payé"
+            "Date de création", "TrackingId", "Nom et prénom du client", "Téléphone",
+            "Ville de récupération", "Ville de destination", "Statut actuel"
         ])
         for r in rows:
             client = f"{r.get('client_prenom', '')} {r.get('client_nom', '')}".strip()
@@ -475,15 +481,12 @@ def api_admin_reports():
                 r.get("numero_suivi", ""),
                 client,
                 r.get("client_tel", ""),
+                r.get("client_ville", ""),
                 r.get("dest_ville", ""),
                 r.get("statut", ""),
-                r.get("description", ""),
-                r.get("poids_kg", ""),
-                r.get("prix_total", ""),
-                "Oui" if r.get("est_paye") else "Non",
             ])
     buffer.seek(0)
-    filename = f"rapport_colis_{date_from.replace('-', '')}-{date_to.replace('-', '')}.csv"
+    filename = f"ELISEE_XPRESS_LOG_rapport_colis_{date_from.replace('-', '')}_{date_to.replace('-', '')}.csv"
     response = make_response(buffer.getvalue())
     response.headers["Content-Type"] = "text/csv; charset=utf-8"
     response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'

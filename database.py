@@ -600,6 +600,7 @@ def rapport_colis(date_debut, date_fin, type_rapport="list"):
         SELECT c.numero_suivi, c.date_creation, c.statut, c.description, c.poids_kg,
                c.prix_total, c.est_paye,
                cl.nom AS client_nom, cl.prenom AS client_prenom, cl.telephone AS client_tel,
+               cl.ville_europe AS client_ville,
                d.ville AS dest_ville
         FROM colis c
         JOIN clients cl ON c.id_client = cl.id
