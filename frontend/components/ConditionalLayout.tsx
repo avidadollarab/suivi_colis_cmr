@@ -8,8 +8,10 @@ import { ChatbotWidget } from "./ChatbotWidget";
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
+  const isTrack = pathname?.startsWith("/track");
+  const isClient = pathname?.startsWith("/client");
 
-  if (isAdmin) {
+  if (isAdmin || isTrack || isClient) {
     return <>{children}</>;
   }
 

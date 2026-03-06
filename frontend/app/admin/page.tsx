@@ -23,6 +23,7 @@ const COULEURS: Record<string, string> = {
 export default function AdminDashboardPage() {
   const [data, setData] = useState<{
     colis: Array<{
+      id_client?: number;
       numero_suivi: string;
       statut: string;
       description: string;
@@ -115,7 +116,16 @@ export default function AdminDashboardPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-gray-700">
-                    {c.client_prenom} {c.client_nom}
+                    {c.id_client ? (
+                      <Link
+                        href={`/client/${c.id_client}`}
+                        className="hover:text-primary hover:underline"
+                      >
+                        {c.client_prenom} {c.client_nom}
+                      </Link>
+                    ) : (
+                      `${c.client_prenom} ${c.client_nom}`
+                    )}
                   </td>
                   <td className="px-4 py-3 text-gray-600">{c.dest_ville}</td>
                   <td className="px-4 py-3">

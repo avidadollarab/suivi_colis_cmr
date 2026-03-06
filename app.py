@@ -219,6 +219,7 @@ def api_admin_colis():
     items = []
     for c in colis:
         items.append({
+            "id_client": c.get("id_client"),
             "numero_suivi": c["numero_suivi"],
             "statut": c["statut"],
             "description": c.get("description", ""),
@@ -261,6 +262,7 @@ def api_admin_colis_detail(numero_suivi):
         })
     return jsonify({
         "colis": {
+            "id_client": c.get("id_client"),
             "numero_suivi": c.get("numero_suivi"),
             "description": c.get("description", ""),
             "statut": c.get("statut", "RAMASSE"),
@@ -380,6 +382,39 @@ def api_admin_destinataires():
     """Liste des destinataires."""
     destinataires = tous_les_destinataires()
     return jsonify({"destinataires": destinataires})
+
+
+@app.route("/api/client/<int:client_id>")
+def api_client(client_id):
+    """Fiche client publique (lien partagé) — pas d'auth."""
+    client = get_client_by_id(client_id)
+    if not client:
+        return jsonify({"error": "Client introuvable"}), 404
+    colis_list = get_colis_by_client(client_id)
+    items = []
+    for c in colis_list:
+        items.append({
+            "numero_suivi": c["numero_suivi"],
+            "statut": c["statut"],
+            "description": c.get("description", ""),
+            "date_creation": (c.get("date_creation") or "")[:10],
+            "dest_nom": c.get("dest_nom", ""),
+            "dest_prenom": c.get("dest_prenom", ""),
+            "dest_ville": c.get("dest_ville", ""),
+        })
+    return jsonify({
+        "client": {
+            "id": client["id"],
+            "nom": client.get("nom", ""),
+            "prenom": client.get("prenom", ""),
+            "telephone": client.get("telephone", ""),
+            "email": client.get("email"),
+            "adresse_europe": client.get("adresse_europe"),
+            "ville_europe": client.get("ville_europe"),
+            "pays_europe": client.get("pays_europe", "France"),
+        },
+        "colis": items,
+    })
 
 
 @app.route("/health")

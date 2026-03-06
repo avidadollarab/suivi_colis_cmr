@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { apiAdminColisCreate } from "@/data/api";
+import { apiAdminColisCreate, apiClient } from "@/data/api";
 import { Button } from "@/components/Button";
 
 export default function NouveauColisPage() {
@@ -30,6 +30,34 @@ export default function NouveauColisPage() {
     nb_pieces: "1",
     notes: "",
   });
+
+  const searchParams = useSearchParams();
+  const clientIdParam = searchParams.get("client_id");
+
+  useEffect(() => {
+    if (clientIdParam) {
+      const id = parseInt(clientIdParam, 10);
+      if (id) {
+        apiClient(id)
+          .then((d) => {
+            if (d?.client) {
+              const c = d.client as Record<string, unknown>;
+              setForm((f) => ({
+                ...f,
+                client_nom: String(c.nom || ""),
+                client_prenom: String(c.prenom || ""),
+                client_telephone: String(c.telephone || ""),
+                client_email: String(c.email || ""),
+                client_adresse: String(c.adresse_europe || ""),
+                client_ville: String(c.ville_europe || ""),
+                client_pays: String(c.pays_europe || "France"),
+              }));
+            }
+          })
+          .catch(() => {});
+      }
+    }
+  }, [clientIdParam]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));

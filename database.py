@@ -403,7 +403,7 @@ def tous_les_colis():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT c.numero_suivi, c.statut, c.description, c.poids_kg,
+        SELECT c.id_client, c.numero_suivi, c.statut, c.description, c.poids_kg,
                c.date_creation, c.prix_total, c.est_paye,
                cl.nom AS client_nom, cl.prenom AS client_prenom,
                d.ville AS dest_ville

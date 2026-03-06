@@ -121,6 +121,23 @@ export async function apiAdminDestinataires() {
   return (await res.json()).destinataires;
 }
 
+const FRONTEND_URL =
+  (typeof process !== "undefined" && (process as NodeJS.Process).env?.NEXT_PUBLIC_APP_URL) ||
+  "https://elisee-xpress-frontend.onrender.com";
+
+/** URL du frontend pour les liens track/QR */
+export function getTrackUrl(numero: string): string {
+  const base = typeof window !== "undefined" ? window.location.origin : FRONTEND_URL;
+  return `${base}/track/${encodeURIComponent(numero.trim().toUpperCase())}`;
+}
+
+export async function apiClient(clientId: number) {
+  const res = await fetch(`${API_BASE}/api/client/${clientId}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error("Erreur");
+  return res.json();
+}
+
 export async function fetchShipmentByNumber(
   numero: string
 ): Promise<Shipment | null> {

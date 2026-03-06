@@ -99,11 +99,36 @@ export default function DetailColisPage() {
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/admin" className="text-gray-600 hover:text-primary">
-          ← Dashboard
-        </Link>
-        <h1 className="text-2xl font-bold text-primary font-mono">{numero}</h1>
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <Link href="/admin" className="text-gray-600 hover:text-primary">
+            ← Dashboard
+          </Link>
+          <h1 className="text-2xl font-bold text-primary font-mono">{numero}</h1>
+        </div>
+        <div className="flex gap-2">
+          <Link
+            href={`/track/${numero}`}
+            target="_blank"
+            className="px-4 py-2 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 text-sm"
+          >
+            📱 QR / Suivi
+          </Link>
+          <Link
+            href={`/admin/colis/${numero}/etiquette`}
+            className="px-4 py-2 bg-gold text-primary font-semibold rounded-xl hover:bg-gold-dark text-sm"
+          >
+            🖨 Étiquette
+          </Link>
+          {colis.id_client != null && Number(colis.id_client) > 0 && (
+            <Link
+              href={`/client/${colis.id_client}`}
+              className="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 text-sm"
+            >
+              👤 Fiche client
+            </Link>
+          )}
+        </div>
       </div>
 
       {error && (
