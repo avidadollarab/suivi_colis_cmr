@@ -61,6 +61,23 @@ def agent_connecte():
 
 
 # ----------------------------------------------------------
+# HEALTH CHECK (pour vérifier le déploiement)
+# ----------------------------------------------------------
+
+@app.route("/health")
+def health():
+    """Vérifie que l'app et la base fonctionnent."""
+    try:
+        from database import get_connection, USE_POSTGRES
+        conn = get_connection()
+        conn.close()
+        db_type = "postgresql" if USE_POSTGRES else "sqlite"
+        return jsonify({"ok": True, "database": db_type})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+# ----------------------------------------------------------
 # PAGES PUBLIQUES
 # ----------------------------------------------------------
 

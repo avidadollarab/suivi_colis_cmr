@@ -262,6 +262,15 @@
         </form>
 
         <p class="search-hint">Exemple · CMR-2026-00147</p>
+
+        <div style="margin-top:1.5rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+            <a href="{{ url_for('login') }}" class="btn-admin-hero" style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.6rem 1.2rem; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); border-radius:10px; color:white; text-decoration:none; font-weight:600; font-size:0.9rem;">
+                🔐 Connexion équipe / Admin
+            </a>
+            <a href="{{ url_for('suivre') }}" style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.6rem 1.2rem; background:var(--green); border-radius:10px; color:white; text-decoration:none; font-weight:600; font-size:0.9rem;">
+                📱 Suivre un colis
+            </a>
+        </div>
     </div>
 </section>
 
@@ -339,7 +348,21 @@
                 <h3>Support réactif</h3>
                 <p>Une question ? Notre équipe est joignable par WhatsApp du lundi au samedi de 8h à 20h.</p>
             </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>QR Code de suivi</h3>
+                <p>Chaque colis dispose d'un QR code. Scannez-le pour suivre le trajet (client) ou mettre à jour le statut (agent connecté).</p>
+                <a href="{{ url_for('login') }}" style="font-size:0.85rem; font-weight:600; color:var(--green); margin-top:0.5rem; display:inline-block;">Connexion équipe →</a>
+            </div>
         </div>
+    </div>
+</section>
+
+<!-- BLOC CONNEXION ADMIN -->
+<section style="background:var(--bg); padding:2rem; border-top:1px solid var(--border);">
+    <div class="container" style="text-align:center;">
+        <p style="color:var(--muted); font-size:0.9rem; margin-bottom:0.8rem;">Vous êtes équipe ou administrateur ?</p>
+        <a href="{{ url_for('login') }}" class="btn btn-primary">🔐 Connexion Admin (admin / admin123)</a>
     </div>
 </section>
 
