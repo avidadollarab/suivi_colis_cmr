@@ -9,7 +9,7 @@ export const MICRO_COPY = {
     badge: "Europe · Groupage Premium · Cameroun",
     title: "Votre colis entre de bonnes mains, garanti.",
     subtitle: "Suivi mis à jour en temps réel, du ramassage en Europe jusqu'à la livraison à votre porte en Afrique.",
-    searchPlaceholder: "Ex : EXL-2026-00147",
+    searchPlaceholder: "Ex : CMR-2026-00147",
     searchHint: "Entrez le numéro reçu par SMS lors du ramassage",
     searchButton: "Suivre mon colis",
     searchLabel: "Numéro de suivi",
@@ -89,10 +89,10 @@ export const MICRO_COPY = {
   // Page suivi
   tracking: {
     title: "Suivre un colis",
-    searchPlaceholder: "Ex : EXL-2026-00147",
+    searchPlaceholder: "Ex : CMR-2026-00147",
     notFound: {
       title: "Numéro introuvable",
-      desc: "Aucun colis trouvé avec ce numéro. Vérifiez le format (EXL-AAAA-NNNNN) ou contactez notre équipe.",
+      desc: "Aucun colis trouvé avec ce numéro. Vérifiez le format (CMR-AAAA-NNNNN) ou contactez notre équipe.",
       retry: "Nouvelle recherche",
       back: "Retour à l'accueil",
     },

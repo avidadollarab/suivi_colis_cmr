@@ -2,7 +2,8 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { getShipmentByNumber } from "@/data/mockShipments";
+import { fetchShipmentByNumber } from "@/data/api";
+import type { Shipment } from "@/data/mockShipments";
 import { TrackingSearch } from "@/components/TrackingSearch";
 import { TrackingResult } from "@/components/TrackingResult";
 import { ScrollReveal } from "@/components/ScrollReveal";
@@ -14,13 +15,14 @@ import { IconBox } from "@/components/icons";
 function TrackingContent() {
   const searchParams = useSearchParams();
   const numeroParam = searchParams.get("numero");
-  const [shipment, setShipment] = useState<ReturnType<typeof getShipmentByNumber> | "loading">(
+  const [shipment, setShipment] = useState<Shipment | null | "loading">(
     numeroParam ? "loading" : null
   );
 
   useEffect(() => {
     if (numeroParam) {
-      setShipment(getShipmentByNumber(numeroParam));
+      setShipment("loading");
+      fetchShipmentByNumber(numeroParam).then((s) => setShipment(s));
     } else {
       setShipment(null);
     }

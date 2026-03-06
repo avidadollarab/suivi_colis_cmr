@@ -13,6 +13,7 @@ try:
 except ImportError:
     pass  # python-dotenv non installé, variables d'env manuelles
 from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response, jsonify
+from flask_cors import CORS
 from database import (
     initialiser,
     ajouter_client, ajouter_destinataire,
@@ -27,6 +28,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "cmr-suivi-secret-local-2024")
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
+CORS(app, origins=["*"], supports_credentials=False)  # API consommée par le frontend Next.js
 
 
 @app.after_request
@@ -63,6 +65,60 @@ def agent_connecte():
 # ----------------------------------------------------------
 # HEALTH CHECK (pour vérifier le déploiement)
 # ----------------------------------------------------------
+
+@app.route("/api/suivi/<numero>")
+def api_suivi(numero):
+    """API JSON pour le frontend Next.js — suivi colis par numéro."""
+    numero = numero.strip().upper()
+    resultat = consulter_colis(numero)
+    if not resultat:
+        return jsonify({"error": "Colis introuvable"}), 404
+
+    c = resultat["colis"]
+    h = resultat["historique"]
+    statut_labels = {
+        "RAMASSE": "Ramassé",
+        "EN_CONTENEUR": "En conteneur",
+        "PARTI": "Parti de France",
+        "ARRIVE": "Arrivé au Cameroun",
+        "LIVRE": "Livré",
+    }
+    historique = []
+    for i, evt in enumerate(h):
+        dt = (evt.get("date_action") or "")[:19].replace("T", " ")
+        date_part = dt[:10] if dt else ""
+        heure_part = dt[11:16] if len(dt) > 11 else "--"
+        historique.append({
+            "id": str(i + 1),
+            "statut": evt.get("statut", ""),
+            "label": statut_labels.get(evt.get("statut", ""), evt.get("statut", "")),
+            "date": date_part,
+            "heure": heure_part,
+            "lieu": evt.get("localisation"),
+            "message": evt.get("commentaire") or statut_labels.get(evt.get("statut", ""), ""),
+            "completed": True,
+        })
+
+    return jsonify({
+        "numero_suivi": c.get("numero_suivi"),
+        "description": c.get("description", ""),
+        "statut": c.get("statut", "RAMASSE"),
+        "statut_label": statut_labels.get(c.get("statut", ""), c.get("statut", "")),
+        "poids_kg": c.get("poids_kg"),
+        "nombre_pieces": c.get("nombre_pieces", 1),
+        "date_creation": (c.get("date_creation") or "")[:10],
+        "date_ramassage": (c.get("date_ramassage") or "")[:10] if c.get("date_ramassage") else None,
+        "date_conteneur": (c.get("date_conteneur") or "")[:10] if c.get("date_conteneur") else None,
+        "date_depart": (c.get("date_depart") or "")[:10] if c.get("date_depart") else None,
+        "date_arrivee": (c.get("date_arrivee") or "")[:10] if c.get("date_arrivee") else None,
+        "date_livraison": (c.get("date_livraison") or "")[:10] if c.get("date_livraison") else None,
+        "client_nom": c.get("client_nom", ""),
+        "client_prenom": c.get("client_prenom", ""),
+        "dest_ville": c.get("dest_ville", ""),
+        "dest_quartier": c.get("dest_quartier"),
+        "historique": historique,
+    })
+
 
 @app.route("/health")
 def health():
