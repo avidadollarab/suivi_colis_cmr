@@ -75,6 +75,17 @@ export async function apiAdminColis(params?: { query?: string; status?: string }
   return res.json();
 }
 
+/** Recherche unifiée : clients fidèles + colis. Réutilise les tables clients/colis existantes. Ne pas modifier le schéma BDD. */
+export async function apiAdminSearch(params: { query: string; status?: string }) {
+  const sp = new URLSearchParams();
+  sp.set("query", params.query);
+  if (params?.status) sp.set("status", params.status);
+  const res = await fetch(`${API_BASE}/api/admin/search?${sp}`, { headers: authHeaders() });
+  if (res.status === 401) throw new Error("Non autorisé");
+  if (!res.ok) throw new Error("Erreur");
+  return res.json();
+}
+
 export async function apiAdminColisDetail(numero: string) {
   const res = await fetch(`${API_BASE}/api/admin/colis/${encodeURIComponent(numero)}`, {
     headers: authHeaders(),

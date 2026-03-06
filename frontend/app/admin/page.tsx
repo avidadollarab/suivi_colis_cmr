@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { apiAdminColis, apiAdminReportsDownload } from "@/data/api";
-import { AdminClientSearchCompact } from "@/components/AdminClientSearchCompact";
+import { apiAdminColis, apiAdminSearch, apiAdminReportsDownload } from "@/data/api";
 
 const LABELS: Record<string, string> = {
   RAMASSE: "Ramassé",
@@ -54,6 +53,7 @@ export default function AdminDashboardPage() {
       est_paye: boolean;
     }>;
     stats: Record<string, number>;
+    searchClients?: Array<{ id: number; nom: string; prenom: string; telephone: string; pays_europe?: string }>;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -63,13 +63,24 @@ export default function AdminDashboardPage() {
 
   const load = useCallback(() => {
     setLoading(true);
-    apiAdminColis({
-      query: debouncedQuery || undefined,
-      status: statusFilter || undefined,
-    })
-      .then(setData)
-      .catch((e) => setError(e instanceof Error ? e.message : "Erreur"))
-      .finally(() => setLoading(false));
+    const q = debouncedQuery.trim();
+    if (q) {
+      apiAdminSearch({ query: q, status: statusFilter || undefined })
+        .then((r) => ({
+          colis: r.shipments || [],
+          stats: r.stats || { total: 0, ramasse: 0, en_conteneur: 0, parti: 0, arrive: 0, livre: 0, non_paye: 0 },
+          searchClients: r.clients || [],
+        }))
+        .then(setData)
+        .catch((e) => setError(e instanceof Error ? e.message : "Erreur"))
+        .finally(() => setLoading(false));
+    } else {
+      apiAdminColis({ status: statusFilter || undefined })
+        .then((d) => ({ ...d, searchClients: [] }))
+        .then(setData)
+        .catch((e) => setError(e instanceof Error ? e.message : "Erreur"))
+        .finally(() => setLoading(false));
+    }
   }, [debouncedQuery, statusFilter]);
 
   useEffect(() => {
@@ -127,7 +138,8 @@ export default function AdminDashboardPage() {
 
   if (!data) return null;
 
-  const { colis, stats } = data;
+  const { colis, stats, searchClients = [] } = data;
+  const hasSearch = debouncedQuery.trim().length > 0;
 
   return (
     <div>
@@ -141,21 +153,42 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
 
-      {/* Barre de recherche colis */}
+      {/* Attention : la logique de recherche réutilise les tables clients et colis existantes.
+          Ne jamais supprimer ni modifier la structure des tables clients/colis ici. */}
+      {/* Barre de recherche unifiée — clients fidèles + colis */}
       <div className="mb-6">
         <input
           type="search"
-          placeholder="Rechercher un colis (nom client, téléphone ou numéro de suivi)"
+          placeholder="Rechercher (client fidèle, colis, téléphone ou numéro de suivi)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full max-w-md px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-primary outline-none"
         />
       </div>
 
-      {/* Recherche clients fidèles */}
-      <div className="mb-6">
-        <AdminClientSearchCompact />
-      </div>
+      {/* Sections résultats : Clients fidèles + Colis (données des tables clients et colis) */}
+      {hasSearch && (
+        <div className="mb-6 space-y-6">
+          {searchClients.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-primary mb-4">Clients fidèles</h2>
+              <ul className="space-y-2">
+                {searchClients.map((c) => (
+                  <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-2 border-b border-gray-100 last:border-0">
+                    <span className="font-medium">{String(c.prenom || "")} {String(c.nom || "")}</span>
+                    <span className="text-gray-600 text-sm">{c.telephone}</span>
+                    {c.pays_europe && <span className="text-gray-500 text-sm">{c.pays_europe}</span>}
+                    <div className="flex gap-2">
+                      <Link href={`/client/${c.id}`} className="text-sm text-primary hover:underline font-medium">Fiche</Link>
+                      <Link href={`/admin/colis/nouveau?client_id=${c.id}`} className="text-sm text-green-600 hover:underline font-medium">Nouveau colis</Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Boîtes de synthèse cliquables — grille symétrique */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 min-h-[100px]">
@@ -244,6 +277,7 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        {hasSearch && <h2 className="text-lg font-semibold text-primary px-4 pt-4 pb-2">Colis</h2>}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>

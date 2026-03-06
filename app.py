@@ -414,6 +414,51 @@ def api_admin_colis_delete(numero_suivi):
     return jsonify({"ok": True})
 
 
+@app.route("/api/admin/search")
+@_api_require_auth
+def api_admin_search():
+    """
+    Recherche unifiée : clients fidèles + colis.
+    GET ?query=...&status=...
+    Appelle rechercher_clients et rechercher_colis — tables existantes, pas de modification du schéma.
+    """
+    query = request.args.get("query", "").strip() or None
+    status = request.args.get("status", "").strip().upper() or None
+    if status and status not in ("RAMASSE", "EN_CONTENEUR", "PARTI", "ARRIVE", "LIVRE"):
+        status = None
+
+    clients = rechercher_clients(query, limit=50) if query else []
+    colis = rechercher_colis(query=query, statut=status) if query else []
+
+    stats = {
+        "total": len(colis),
+        "ramasse": sum(1 for c in colis if c["statut"] == "RAMASSE"),
+        "en_conteneur": sum(1 for c in colis if c["statut"] == "EN_CONTENEUR"),
+        "parti": sum(1 for c in colis if c["statut"] == "PARTI"),
+        "arrive": sum(1 for c in colis if c["statut"] == "ARRIVE"),
+        "livre": sum(1 for c in colis if c["statut"] == "LIVRE"),
+        "non_paye": sum(1 for c in colis if not c.get("est_paye")),
+    }
+
+    items = []
+    for c in colis:
+        items.append({
+            "id_client": c.get("id_client"),
+            "numero_suivi": c["numero_suivi"],
+            "statut": c["statut"],
+            "description": c.get("description", ""),
+            "poids_kg": c.get("poids_kg"),
+            "date_creation": (c.get("date_creation") or "")[:10],
+            "prix_total": c.get("prix_total"),
+            "est_paye": bool(c.get("est_paye")),
+            "client_nom": c.get("client_nom", ""),
+            "client_prenom": c.get("client_prenom", ""),
+            "dest_ville": c.get("dest_ville", ""),
+        })
+
+    return jsonify({"clients": clients, "shipments": items, "stats": stats})
+
+
 @app.route("/api/admin/clients")
 @_api_require_auth
 def api_admin_clients():
