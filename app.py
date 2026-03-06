@@ -23,6 +23,7 @@ from database import (
     rechercher_clients, rechercher_colis,
     modifier_colis, supprimer_colis, rapport_colis,
     get_agent, marquer_paye,
+    token_store, token_get, token_delete,
     get_client_by_id, get_colis_by_client
 )
 from notifications import envoyer_notifications, apercu_message, twilio_configure
@@ -39,8 +40,7 @@ _ALLOWED_ORIGINS = [
 ]
 CORS(app, origins=_ALLOWED_ORIGINS, supports_credentials=True)
 
-# Token API pour frontend (auth sans cookies cross-origin)
-_API_TOKENS = {}  # token -> { agent_id, agent_nom, agent_role }
+# Token API : stockés en base (persistent après redémarrage Render)
 
 
 def _get_agent_from_token():
@@ -49,7 +49,7 @@ def _get_agent_from_token():
     if not auth or not auth.startswith("Bearer "):
         return None
     token = auth[7:].strip()
-    return _API_TOKENS.get(token)
+    return token_get(token)
 
 
 @app.after_request
@@ -158,15 +158,13 @@ def api_login():
         return jsonify({"error": "Identifiant ou mot de passe incorrect"}), 401
     import secrets
     token = secrets.token_urlsafe(32)
-    _API_TOKENS[token] = {
-        "agent_id": agent["id"],
-        "agent_nom": f"{agent.get('prenom', '')} {agent.get('nom', '')}".strip(),
-        "agent_role": agent.get("role", "AGENT"),
-    }
+    agent_nom = f"{agent.get('prenom', '')} {agent.get('nom', '')}".strip()
+    agent_role = agent.get("role", "AGENT")
+    token_store(token, agent["id"], agent_nom, agent_role)
     return jsonify({
         "ok": True,
         "token": token,
-        "agent": {"nom": _API_TOKENS[token]["agent_nom"], "role": _API_TOKENS[token]["agent_role"]},
+        "agent": {"nom": agent_nom, "role": agent_role},
     })
 
 
@@ -176,7 +174,7 @@ def api_logout():
     auth = request.headers.get("Authorization")
     if auth and auth.startswith("Bearer "):
         token = auth[7:].strip()
-        _API_TOKENS.pop(token, None)
+        token_delete(token)
     return jsonify({"ok": True})
 
 

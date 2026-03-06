@@ -197,6 +197,16 @@ def creer_base_de_donnees():
         )
     """)
 
+    cursor.execute(f"""
+        CREATE TABLE IF NOT EXISTS api_tokens (
+            token        TEXT PRIMARY KEY,
+            agent_id     INTEGER NOT NULL,
+            agent_nom    TEXT NOT NULL,
+            agent_role   TEXT NOT NULL,
+            date_creation TEXT {now_default}
+        )
+    """)
+
     conn.commit()
     conn.close()
     print("Tables creees (ou deja existantes).")
@@ -702,6 +712,49 @@ def get_agent(identifiant, mot_de_passe):
     agent = fetchone(cursor)
     conn.close()
     return agent
+
+
+def token_store(token, agent_id, agent_nom, agent_role):
+    """Stocke un token API en base (persiste après redémarrage serveur)."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    ph = p()
+    cursor.execute(
+        f"INSERT INTO api_tokens (token, agent_id, agent_nom, agent_role) VALUES ({ph},{ph},{ph},{ph})",
+        (token, agent_id, agent_nom, agent_role)
+    )
+    conn.commit()
+    conn.close()
+
+
+def token_get(token):
+    """Retourne l'agent associé au token ou None."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    ph = p()
+    cursor.execute(
+        f"SELECT agent_id, agent_nom, agent_role FROM api_tokens WHERE token = {ph}",
+        (token,)
+    )
+    row = fetchone(cursor)
+    conn.close()
+    if not row:
+        return None
+    return {
+        "agent_id": row["agent_id"],
+        "agent_nom": row["agent_nom"],
+        "agent_role": row["agent_role"],
+    }
+
+
+def token_delete(token):
+    """Supprime un token (logout)."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    ph = p()
+    cursor.execute(f"DELETE FROM api_tokens WHERE token = {ph}", (token,))
+    conn.commit()
+    conn.close()
 
 
 def marquer_paye(numero_suivi):
