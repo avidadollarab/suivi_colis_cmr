@@ -15,3 +15,16 @@ services:
       - key: SECRET_KEY
         generateValue: true
       # DATABASE_URL : ajoute-la manuellement avec l'Internal URL de ta base existante
+
+  - type: web
+    name: elisee-xpress-frontend
+    runtime: node
+    plan: free
+
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://suivi-colis-cmr.onrender.com
