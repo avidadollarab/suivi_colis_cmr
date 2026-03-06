@@ -1,0 +1,17 @@
+# Render Blueprint — Configuration déploiement
+# Utilisé si tu crées un nouveau service via "New" → "Blueprint"
+# Si tu as DÉJÀ une base PostgreSQL : ajoute DATABASE_URL manuellement dans Environment
+
+services:
+  - type: web
+    name: suivi-colis-cmr
+    runtime: python
+    plan: free
+
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      # DATABASE_URL : ajoute-la manuellement avec l'Internal URL de ta base existante
