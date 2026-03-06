@@ -24,7 +24,8 @@ export default function AdminLoginPage() {
       router.push("/admin");
       router.refresh();
     } catch (err) {
-      setErreur(err instanceof Error ? err.message : "Erreur de connexion");
+      const msg = err instanceof Error ? err.message : "Erreur de connexion";
+      setErreur(msg === "Failed to fetch" ? "Le serveur met du temps à répondre (Render). Réessayez dans 30 secondes." : msg);
     } finally {
       setLoading(false);
     }

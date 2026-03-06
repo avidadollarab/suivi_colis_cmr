@@ -11,21 +11,20 @@ const API_BASE =
 const TOKEN_KEY = "elisee_admin_token";
 
 /**
- * Session admin : on utilise sessionStorage (et non localStorage).
- * Le token est détruit à la fermeture de l'onglet.
- * Il est aussi détruit dès qu'on quitte la section admin (voir ConditionalLayout).
+ * Session admin : localStorage pour éviter les déconnexions intempestives
+ * (Render cold start, délais réseau). Toujours détruit à la sortie de /admin (ConditionalLayout).
  */
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;
-  return sessionStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem(TOKEN_KEY);
 }
 
 export function setToken(token: string): void {
-  if (typeof window !== "undefined") sessionStorage.setItem(TOKEN_KEY, token);
+  if (typeof window !== "undefined") localStorage.setItem(TOKEN_KEY, token);
 }
 
 export function clearToken(): void {
-  if (typeof window !== "undefined") sessionStorage.removeItem(TOKEN_KEY);
+  if (typeof window !== "undefined") localStorage.removeItem(TOKEN_KEY);
 }
 
 function authHeaders(): HeadersInit {

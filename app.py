@@ -40,7 +40,8 @@ _ALLOWED_ORIGINS = [
 ]
 CORS(app, origins=_ALLOWED_ORIGINS, supports_credentials=True)
 
-# Token API : stockés en base (persistent après redémarrage Render)
+# Token API : stockés en base (persistent). Fallback mémoire si erreur BDD.
+_API_TOKENS_FALLBACK = {}
 
 
 def _get_agent_from_token():
@@ -49,7 +50,10 @@ def _get_agent_from_token():
     if not auth or not auth.startswith("Bearer "):
         return None
     token = auth[7:].strip()
-    return token_get(token)
+    agent = token_get(token)
+    if agent:
+        return agent
+    return _API_TOKENS_FALLBACK.get(token)
 
 
 @app.after_request
@@ -160,7 +164,12 @@ def api_login():
     token = secrets.token_urlsafe(32)
     agent_nom = f"{agent.get('prenom', '')} {agent.get('nom', '')}".strip()
     agent_role = agent.get("role", "AGENT")
-    token_store(token, agent["id"], agent_nom, agent_role)
+    agent_data = {"agent_id": agent["id"], "agent_nom": agent_nom, "agent_role": agent_role}
+    try:
+        token_store(token, agent["id"], agent_nom, agent_role)
+    except Exception as e:
+        print(f"token_store fallback memoire: {e}")
+        _API_TOKENS_FALLBACK[token] = agent_data
     return jsonify({
         "ok": True,
         "token": token,
@@ -174,7 +183,11 @@ def api_logout():
     auth = request.headers.get("Authorization")
     if auth and auth.startswith("Bearer "):
         token = auth[7:].strip()
-        token_delete(token)
+        try:
+            token_delete(token)
+        except Exception:
+            pass
+        _API_TOKENS_FALLBACK.pop(token, None)
     return jsonify({"ok": True})
 
 
