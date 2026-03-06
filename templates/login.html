@@ -78,6 +78,7 @@
 
         <div class="login-card">
             <form method="POST">
+                {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
                 <div class="form-group">
                     <label>Identifiant</label>
                     <input type="text" name="identifiant" required placeholder="Votre identifiant" autofocus>

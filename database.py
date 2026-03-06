@@ -360,7 +360,7 @@ def consulter_colis(numero_suivi):
 
     cursor.execute(f"""
         SELECT
-            c.numero_suivi, c.description, c.poids_kg, c.nombre_pieces,
+            c.id, c.id_client, c.numero_suivi, c.description, c.poids_kg, c.nombre_pieces,
             c.statut, c.date_ramassage, c.date_conteneur, c.date_depart,
             c.date_arrivee, c.date_livraison, c.date_creation, c.notes,
             c.prix_total, c.est_paye,
@@ -421,6 +421,35 @@ def tous_les_clients():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM clients ORDER BY nom")
+    result = fetchall(cursor)
+    conn.close()
+    return result
+
+
+def get_client_by_id(client_id):
+    """Retourne un client par son id (pour pré-remplissage formulaire)."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    ph = p()
+    cursor.execute(f"SELECT * FROM clients WHERE id = {ph}", (client_id,))
+    client = fetchone(cursor)
+    conn.close()
+    return client
+
+
+def get_colis_by_client(client_id):
+    """Retourne la liste des colis d'un client (historique)."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    ph = p()
+    cursor.execute(f"""
+        SELECT c.numero_suivi, c.statut, c.description, c.date_creation, c.est_paye,
+               d.nom AS dest_nom, d.prenom AS dest_prenom, d.ville AS dest_ville
+        FROM colis c
+        JOIN destinataires d ON c.id_destinataire = d.id
+        WHERE c.id_client = {ph}
+        ORDER BY c.date_creation DESC
+    """, (client_id,))
     result = fetchall(cursor)
     conn.close()
     return result

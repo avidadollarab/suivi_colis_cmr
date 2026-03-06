@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Fiche {{ client.prenom }} {{ client.nom }} · SuiviColis CMR{% endblock %}
+
+{% block extra_css %}
+<style>
+    .client-card {
+        background: linear-gradient(135deg, #0D1B3E, #1a3a6b);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        color: white;
+        margin-bottom: 1.2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .client-avatar {
+        width: 56px; height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #D4AF37, #B8960C);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; font-weight: 800; color: #0D1B3E;
+        margin-bottom: 1rem;
+    }
+    .client-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .client-meta { color: rgba(255,255,255,0.65); font-size: 0.88rem; }
+    .client-stats { display: flex; gap: 1.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.15); }
+    .stat { text-align: center; }
+    .stat-num { font-size: 1.5rem; font-weight: 800; color: #D4AF37; }
+    .stat-lbl { font-size: 0.72rem; color: rgba(255,255,255,0.6); text-transform: uppercase; }
+    .colis-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .colis-item {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.2rem 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.15s;
+    }
+    .colis-item:hover { border-color: #D4AF37; box-shadow: 0 4px 16px rgba(212,175,55,0.12); }
+    .colis-item.livre { border-left: 3px solid #00C37A; }
+    .colis-item.en-cours { border-left: 3px solid #3B82F6; }
+    .colis-num { font-family: 'DM Mono', monospace; font-size: 0.9rem; font-weight: 600; color: #1a3a6b; margin-bottom: 0.3rem; }
+    .colis-desc { font-weight: 700; font-size: 0.95rem; color: var(--navy); margin-bottom: 0.2rem; }
+    .colis-dest { font-size: 0.82rem; color: var(--muted); }
+    .colis-date { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+    .empty { text-align: center; padding: 3rem; color: var(--muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-sm" style="padding-top:2rem;">
+    <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+        <a href="{{ url_for('index') }}" class="btn btn-gray btn-sm">← Accueil</a>
+        <h1 style="font-size:1.3rem;">📋 Fiche client</h1>
+    </div>
+
+    <div class="client-card">
+        <div class="client-avatar">{{ (client.prenom or '')[0] }}{{ (client.nom or '')[0] }}</div>
+        <div class="client-name">{{ client.prenom }} {{ client.nom }}</div>
+        <div class="client-meta">
+            📱 {{ client.telephone }}
+            {% if client.email %}<br>✉️ {{ client.email }}{% endif %}
+            {% if client.adresse_europe or client.ville_europe %}
+            <br>📍 {{ client.adresse_europe or '' }}{% if client.ville_europe %}{{ ', ' if client.adresse_europe else '' }}{{ client.ville_europe }}{% endif %}
+            {% endif %}
+        </div>
+        <div class="client-stats">
+            <div class="stat">
+                <div class="stat-num">{{ colis_list | length }}</div>
+                <div class="stat-lbl">Colis total</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">{{ colis_list | selectattr('statut', 'equalto', 'LIVRE') | list | length }}</div>
+                <div class="stat-lbl">Livrés</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">{{ colis_list | rejectattr('statut', 'equalto', 'LIVRE') | list | length }}</div>
+                <div class="stat-lbl">En cours</div>
+            </div>
+        </div>
+    </div>
+
+    <h2 style="font-size:1.1rem; margin-bottom:1rem;">📦 Historique des colis</h2>
+
+    {% if colis_list %}
+    <div class="colis-list">
+        {% for colis in colis_list %}
+        <a href="{{ url_for('track', tracking_id=colis.numero_suivi) }}"
+           class="colis-item {% if colis.statut == 'LIVRE' %}livre{% else %}en-cours{% endif %}">
+            <div>
+                <div class="colis-num">{{ colis.numero_suivi }}</div>
+                <div class="colis-desc">{{ colis.description }}</div>
+                <div class="colis-dest">📍 {{ colis.dest_prenom }} {{ colis.dest_nom }} · {{ colis.dest_ville }}</div>
+                <div class="colis-date">Créé le {{ colis.date_creation[:10] }}</div>
+            </div>
+            <div style="text-align:right;">
+                <span class="badge badge-{{ couleurs.get(colis.statut, 'orange') }}">{{ labels.get(colis.statut, colis.statut) }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+        <div style="font-size:3rem; margin-bottom:1rem;">📭</div>
+        <p>Aucun colis enregistré pour ce client.</p>
+    </div>
+    {% endif %}
+
+    {% if session.agent_id %}
+    <div style="margin-top:1.5rem;">
+        <a href="{{ url_for('nouveau_colis') }}?client_id={{ client.id }}" class="btn btn-green">
+            ➕ Nouveau colis pour ce client
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

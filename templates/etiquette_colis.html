@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Étiquette {{ numero }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&family=DM+Mono:wght@500&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans',sans-serif; background:#F5F7FA; color:#0D1B3E; padding:1.5rem; }
+        .no-print { margin-bottom:1.5rem; display:flex; gap:0.8rem; align-items:center; flex-wrap:wrap; }
+        .btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.6rem 1.2rem; border-radius:10px; font-family:inherit; font-size:0.9rem; font-weight:600; cursor:pointer; border:none; text-decoration:none; transition:all 0.15s; }
+        .btn-gold { background:#D4AF37; color:#0D1B3E; }
+        .btn-navy { background:#1a3a6b; color:white; }
+        .btn-gray { background:white; color:#4A5568; border:1px solid #E8EDF2; }
+        .feuille { max-width:190mm; margin:0 auto; display:flex; flex-direction:column; gap:8mm; }
+        .etiq-principale { border:2px solid #0D1B3E; border-radius:10px; background:white; overflow:hidden; }
+        .etiq-header { background:linear-gradient(135deg,#0D1B3E,#1a3a6b); padding:10px 14px; display:flex; justify-content:space-between; align-items:center; }
+        .etiq-logo-text { color:white; font-size:13px; font-weight:800; }
+        .etiq-logo-text span { color:#D4AF37; }
+        .etiq-num-badge { font-family:'DM Mono',monospace; background:#D4AF37; color:#0D1B3E; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; letter-spacing:0.8px; }
+        .etiq-corps { display:grid; grid-template-columns:1fr 120px; }
+        .etiq-infos { padding:10px 14px; }
+        .info-bloc { margin-bottom:8px; }
+        .info-label { font-size:7.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#8898AA; margin-bottom:2px; }
+        .info-val { font-size:12px; font-weight:700; color:#0D1B3E; line-height:1.3; }
+        .info-sub { font-size:10px; color:#4A5568; }
+        .info-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .etiq-qr { border-left:1.5px dashed #CBD5E0; background:#FAFBFD; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; gap:4px; }
+        .qr-label { font-size:7px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#1a3a6b; text-align:center; line-height:1.4; }
+        .qr-sublabel { font-size:6.5px; color:#8898AA; text-align:center; }
+        .etiq-statut-bar { background:#F5F7FA; border-top:1px solid #E8EDF2; padding:5px 14px; display:flex; align-items:center; gap:8px; font-size:9px; font-weight:600; }
+        .sdot { width:7px; height:7px; border-radius:50%; display:inline-block; }
+        .dot-orange{background:#F97316;} .dot-blue{background:#3B82F6;} .dot-purple{background:#8B5CF6;} .dot-teal{background:#14B8A6;} .dot-green{background:#00C37A;}
+        .etiq-footer { border-top:1px solid #E8EDF2; padding:5px 14px; display:flex; justify-content:space-between; font-size:7.5px; color:#8898AA; }
+        .talon-client { border:1.5px solid #D4AF37; border-radius:8px; background:white; overflow:hidden; }
+        .talon-header { background:#D4AF37; padding:6px 12px; display:flex; justify-content:space-between; align-items:center; }
+        .talon-header-text { font-size:10px; font-weight:800; color:#0D1B3E; }
+        .talon-num { font-family:'DM Mono',monospace; font-size:10px; font-weight:700; color:#0D1B3E; letter-spacing:0.8px; }
+        .talon-corps { display:grid; grid-template-columns:1fr 90px; padding:8px 12px; gap:8px; align-items:center; }
+        .talon-info { font-size:9px; line-height:1.8; }
+        .talon-info strong { font-size:11px; color:#0D1B3E; }
+        .talon-qr-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; }
+        .talon-qr-label { font-size:6.5px; color:#8898AA; text-align:center; font-weight:600; text-transform:uppercase; }
+        .talon-footer { background:#FEF9E7; padding:4px 12px; font-size:7.5px; color:#B8960C; font-weight:600; text-align:center; }
+        @media print { body { background:white; padding:5mm; } .no-print { display:none !important; } }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button class="btn btn-gold" onclick="window.print()">🖨 Imprimer</button>
+    <a href="{{ url_for('track', tracking_id=numero) }}" class="btn btn-navy">📱 Suivi / Scan</a>
+    <a href="{{ url_for('detail_colis', numero_suivi=numero) }}" class="btn btn-gray">← Retour</a>
+    <span style="font-size:0.82rem;color:#8898AA;margin-left:auto;">💡 Imprimez sur papier autocollant A4</span>
+</div>
+
+{% set c = resultat.colis %}
+{% set cdot = {'RAMASSE':'orange','EN_CONTENEUR':'blue','PARTI':'purple','ARRIVE':'teal','LIVRE':'green'} %}
+
+<div class="feuille">
+    <div class="etiq-principale">
+        <div class="etiq-header">
+            <div>
+                <div class="etiq-logo-text">ELISÉE <span>XPRESS</span> LOG</div>
+                <div style="color:rgba(255,255,255,0.55);font-size:8px;margin-top:2px;">🇪🇺 Europe → 🇨🇲 Cameroun</div>
+            </div>
+            <div class="etiq-num-badge">{{ numero }}</div>
+        </div>
+        <div class="etiq-corps">
+            <div class="etiq-infos">
+                <div class="info-bloc">
+                    <div class="info-label">📤 Expéditeur</div>
+                    <div class="info-val">{{ c.client_prenom }} {{ c.client_nom }}</div>
+                    <div class="info-sub">{{ c.client_tel }}</div>
+                </div>
+                <div class="info-bloc">
+                    <div class="info-label">📍 Destinataire</div>
+                    <div class="info-val">{{ c.dest_prenom }} {{ c.dest_nom }}</div>
+                    <div class="info-sub">{{ c.dest_ville }}{% if c.dest_quartier %} · {{ c.dest_quartier }}{% endif %} · {{ c.dest_tel }}</div>
+                </div>
+                <div class="info-row-2">
+                    <div class="info-bloc">
+                        <div class="info-label">📦 Contenu</div>
+                        <div class="info-val" style="font-size:11px;">{{ c.description }}</div>
+                    </div>
+                    <div class="info-bloc">
+                        <div class="info-label">⚖️ Poids / Pièces</div>
+                        <div class="info-val" style="font-size:11px;">{{ c.poids_kg or '—' }} kg · {{ c.nombre_pieces }} pcs</div>
+                    </div>
+                </div>
+            </div>
+            <div class="etiq-qr">
+                <div class="qr-label">📱 SCAN SUIVI</div>
+                <div id="qr-code"></div>
+                <div class="qr-sublabel">Agent ou client</div>
+            </div>
+        </div>
+        <div class="etiq-statut-bar">
+            <span class="sdot dot-{{ cdot.get(c.statut, 'orange') }}"></span>
+            Statut : {{ labels[c.statut] }}
+            {% if c.date_ramassage %} · Ramassé le {{ c.date_ramassage[:10] }}{% endif %}
+        </div>
+        <div class="etiq-footer">
+            <span>SuiviColis CMR · France → Cameroun</span>
+        </div>
+    </div>
+
+    <div class="talon-client">
+        <div class="talon-header">
+            <div class="talon-header-text">✂ TALON CLIENT — À conserver</div>
+            <div class="talon-num">{{ numero }}</div>
+        </div>
+        <div class="talon-corps">
+            <div class="talon-info">
+                <strong>SuiviColis CMR</strong><br>
+                Colis : {{ c.description }}<br>
+                Destinataire : {{ c.dest_prenom }} {{ c.dest_nom }} · {{ c.dest_ville }}<br>
+                Déposé le : {{ c.date_creation[:10] }}
+            </div>
+            <div class="talon-qr-wrap">
+                <div id="qr-client"></div>
+                <div class="talon-qr-label">Scannez pour suivre</div>
+            </div>
+        </div>
+        <div class="talon-footer">Scannez le QR code pour suivre votre colis en temps réel</div>
+    </div>
+</div>
+
+<script>
+const base = "{{ request.url_root }}";
+const trackUrl = base + "track/{{ numero }}";
+
+// QR unique : même URL pour agent et client (interface adaptée selon connexion)
+new QRCode(document.getElementById("qr-code"), {
+    text: trackUrl,
+    width: 90, height: 90,
+    colorDark: "#1a3a6b", colorLight: "#FAFBFD",
+    correctLevel: QRCode.CorrectLevel.M
+});
+
+new QRCode(document.getElementById("qr-client"), {
+    text: trackUrl,
+    width: 75, height: 75,
+    colorDark: "#B8960C", colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M
+});
+</script>
+</body>
+</html>

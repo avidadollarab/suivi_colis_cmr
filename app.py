@@ -12,13 +12,14 @@ try:
     load_dotenv()  # Charge .env pour Twilio en local
 except ImportError:
     pass  # python-dotenv non installé, variables d'env manuelles
-from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response
+from flask import Flask, render_template, request, redirect, url_for, session, flash, make_response, jsonify
 from database import (
     initialiser,
     ajouter_client, ajouter_destinataire,
     enregistrer_colis, mettre_a_jour_statut, consulter_colis,
     tous_les_colis, tous_les_clients, tous_les_destinataires,
-    get_agent, marquer_paye
+    get_agent, marquer_paye,
+    get_client_by_id, get_colis_by_client
 )
 from notifications import envoyer_notifications, apercu_message
 
@@ -92,6 +93,7 @@ def suivre():
 
 @app.route("/admin/login", methods=["GET", "POST"])
 def login():
+    next_url = request.args.get("next") or request.form.get("next")
     if request.method == "POST":
         agent = get_agent(request.form["identifiant"], request.form["mot_de_passe"])
         if agent:
@@ -99,10 +101,12 @@ def login():
             session["agent_nom"]  = f"{agent['prenom']} {agent['nom']}"
             session["agent_role"] = agent["role"]
             flash("Bienvenue ! Vous etes connecte.", "success")
+            if next_url and next_url.startswith("/"):
+                return redirect(next_url)
             return redirect(url_for("admin_dashboard"))
         else:
             flash("Identifiant ou mot de passe incorrect.", "danger")
-    return render_template("login.html")
+    return render_template("login.html", next_url=next_url)
 
 
 @app.route("/admin/logout")
@@ -141,6 +145,14 @@ def nouveau_colis():
     if not agent_connecte():
         return redirect(url_for("login"))
 
+    client_prefill = None
+    client_id_param = request.args.get("client_id")
+    if client_id_param:
+        try:
+            client_prefill = get_client_by_id(int(client_id_param))
+        except (ValueError, TypeError):
+            pass
+
     if request.method == "POST":
         f = request.form
         id_client = ajouter_client(
@@ -168,7 +180,25 @@ def nouveau_colis():
 
     return render_template("admin/nouveau_colis.html",
                            clients=tous_les_clients(),
-                           destinataires=tous_les_destinataires())
+                           destinataires=tous_les_destinataires(),
+                           client_prefill=client_prefill,
+                           labels=LABELS_STATUT)
+
+
+@app.route("/client/<int:client_id>")
+def fiche_client(client_id):
+    """Page client : fiche + historique des colis (accès par lien partagé)."""
+    client = get_client_by_id(client_id)
+    if not client:
+        flash("Client introuvable.", "danger")
+        return redirect(url_for("index"))
+
+    colis_list = get_colis_by_client(client_id)
+    return render_template("fiche_client.html",
+                          client=client,
+                          colis_list=colis_list,
+                          labels=LABELS_STATUT,
+                          couleurs=COULEURS_STATUT)
 
 
 @app.route("/admin/colis/<numero_suivi>")
@@ -230,6 +260,115 @@ def changer_statut(numero_suivi):
         flash("Erreur lors de la mise a jour.", "danger")
 
     return redirect(url_for("detail_colis", numero_suivi=numero_suivi))
+
+
+# ----------------------------------------------------------
+# ROUTE TRACK (QR CODE - AGENT OU CLIENT)
+# ----------------------------------------------------------
+
+@app.route("/track/<tracking_id>")
+def track(tracking_id):
+    """Page unique pour le QR colis : agent connecte = vue edition, sinon = vue client (lecture seule)."""
+    numero = tracking_id.strip().upper()
+    resultat = consulter_colis(numero)
+    if not resultat:
+        flash(f"Colis introuvable : {numero}", "danger")
+        return redirect(url_for("suivre"))
+
+    resultat["labels"] = LABELS_STATUT
+    resultat["couleurs"] = COULEURS_STATUT
+    resultat["etapes_ordonnees"] = ['RAMASSE', 'EN_CONTENEUR', 'PARTI', 'ARRIVE', 'LIVRE']
+    resultat["statuts_valides"] = list(LABELS_STATUT.keys())
+
+    if agent_connecte():
+        return render_template("track_agent.html", resultat=resultat, numero=numero, labels=LABELS_STATUT)
+    return render_template("track_client.html", resultat=resultat, numero=numero, labels=LABELS_STATUT)
+
+
+@app.route("/track/<tracking_id>/statut", methods=["POST"])
+def track_changer_statut(tracking_id):
+    """Mise a jour statut depuis la page scan agent (QR)."""
+    if not agent_connecte():
+        flash("Connexion requise pour modifier le statut.", "danger")
+        return redirect(url_for("login", next=url_for("track", tracking_id=tracking_id)))
+
+    nouveau_statut = request.form.get("statut")
+    if not nouveau_statut:
+        flash("Statut requis.", "danger")
+        return redirect(url_for("track", tracking_id=tracking_id))
+
+    succes = mettre_a_jour_statut(
+        tracking_id,
+        nouveau_statut,
+        commentaire=request.form.get("commentaire"),
+        agent=session.get("agent_nom", "Admin"),
+        localisation=request.form.get("localisation")
+    )
+
+    if succes:
+        flash(f"Statut mis a jour : {LABELS_STATUT[nouveau_statut]}", "success")
+        colis = consulter_colis(tracking_id)
+        if colis:
+            c = colis["colis"]
+            try:
+                resultats = envoyer_notifications(
+                    numero_suivi=tracking_id,
+                    nouveau_statut=nouveau_statut,
+                    tel_expediteur=c["client_tel"],
+                    tel_destinataire=c["dest_tel"],
+                    ville_destinataire=c["dest_ville"]
+                )
+                nb = resultats["sms"] + resultats["whatsapp"] + resultats["simules"]
+                if nb > 0:
+                    flash(f"📱 {nb} notification(s) envoyee(s).", "info")
+            except Exception as e:
+                flash(f"⚠️ Notifications : {e}", "warning")
+    else:
+        flash("Erreur lors de la mise a jour.", "danger")
+
+    return redirect(url_for("track", tracking_id=tracking_id))
+
+
+@app.route("/admin/colis/<numero_suivi>/etiquette")
+def etiquette_colis(numero_suivi):
+    """Etiquette imprimable avec QR code (URL track)."""
+    if not agent_connecte():
+        return redirect(url_for("login", next=url_for("etiquette_colis", numero_suivi=numero_suivi)))
+
+    resultat = consulter_colis(numero_suivi)
+    if not resultat:
+        flash("Colis introuvable.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    resultat["labels"] = LABELS_STATUT
+    resultat["couleurs"] = COULEURS_STATUT
+    return render_template("etiquette_colis.html", resultat=resultat, numero=numero_suivi, labels=LABELS_STATUT)
+
+
+@app.route("/api/shipments/<numero_suivi>/status", methods=["POST"])
+def api_changer_statut(numero_suivi):
+    """API REST pour mise a jour statut (agents uniquement)."""
+    if not agent_connecte():
+        return jsonify({"error": "Non autorise"}), 401
+
+    data = request.get_json() or {}
+    nouveau_statut = data.get("statut") or request.form.get("statut")
+    if not nouveau_statut:
+        return jsonify({"error": "statut requis"}), 400
+
+    succes = mettre_a_jour_statut(
+        numero_suivi,
+        nouveau_statut,
+        commentaire=data.get("commentaire") or request.form.get("commentaire"),
+        agent=session.get("agent_nom", "Admin"),
+        localisation=data.get("localisation") or request.form.get("localisation")
+    )
+
+    if not succes:
+        return jsonify({"error": "Mise a jour impossible"}), 400
+
+    resultat = consulter_colis(numero_suivi)
+    return jsonify({"ok": True, "statut": nouveau_statut, "colis": resultat["colis"]})
 
 
 @app.route("/admin/colis/<numero_suivi>/paiement", methods=["POST"])

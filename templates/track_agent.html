@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}📱 Scan {{ numero }} · Agent{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background: #F5F7FA; }
+    .scan-page { max-width: 480px; margin: 0 auto; padding: 1rem; }
+    .colis-scanné {
+        background: linear-gradient(135deg, #0D1B3E, #1a3a6b);
+        border-radius: 16px;
+        padding: 1.2rem 1.5rem;
+        color: white;
+        margin-bottom: 1.2rem;
+    }
+    .colis-num { font-family: 'DM Mono', monospace; font-size: 1.1rem; font-weight: 600; color: #D4AF37; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .colis-desc { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .colis-meta { font-size: 0.82rem; color: rgba(255,255,255,0.65); line-height: 1.6; }
+    .colis-statut-actuel {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.8rem; font-weight: 600; margin-top: 0.8rem;
+    }
+    .update-card {
+        background: white; border-radius: 16px; border: 1px solid #E8EDF2;
+        padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 12px rgba(13,27,62,0.05);
+    }
+    .update-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #8898AA; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid #E8EDF2; }
+    .statut-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+    .statut-btn {
+        display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+        padding: 1rem 0.5rem; border-radius: 12px; border: 2px solid #E8EDF2;
+        background: #F5F7FA; cursor: pointer; font-family: inherit; transition: all 0.15s;
+        font-size: 0.82rem; font-weight: 600; color: #4A5568;
+    }
+    .statut-btn .emoji { font-size: 1.8rem; }
+    .statut-btn:hover { border-color: #1a3a6b; background: #EEF2FF; color: #0D1B3E; }
+    .statut-btn.selected { border-color: #D4AF37; background: #FEF9E7; color: #0D1B3E; }
+    .statut-btn.actuel { border-color: #00C37A; background: #E6FBF3; color: #065F46; }
+    .statut-btn.actuel::after { content: ' ✓ Actuel'; font-size: 0.68rem; color: #00C37A; }
+    .form-group { margin-bottom: 0.8rem; }
+    .form-group label { display: block; font-size: 0.78rem; font-weight: 700; color: #4A5568; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.4rem; }
+    .form-group input, .form-group textarea { width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #E8EDF2; border-radius: 10px; font-size: 0.95rem; font-family: inherit; color: #0D1B3E; }
+    .btn-valider {
+        width: 100%; padding: 1rem; background: #1a3a6b; color: white; border: none; border-radius: 14px;
+        font-family: inherit; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.15s;
+        display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn-valider:hover { background: #0D1B3E; transform: translateY(-1px); }
+    .btn-valider:disabled { background: #CBD5E0; cursor: not-allowed; transform: none; }
+    .histo-item { display: flex; gap: 0.8rem; padding: 0.5rem 0; border-bottom: 1px solid #F5F7FA; font-size: 0.82rem; }
+    .histo-item:last-child { border: none; }
+    .histo-dot { width: 8px; height: 8px; border-radius: 50%; background: #D4AF37; flex-shrink: 0; margin-top: 4px; }
+    .histo-statut { font-weight: 600; color: #0D1B3E; }
+    .histo-date { color: #8898AA; font-size: 0.75rem; }
+    .alert { padding: 0.85rem 1.2rem; border-radius: 10px; font-size: 0.9rem; font-weight: 500; margin-bottom: 1rem; }
+    .alert-success { background: #E6FBF3; color: #065F46; border-left: 3px solid #00C37A; }
+    .alert-danger { background: #FEF2F2; color: #991B1B; border-left: 3px solid #EF4444; }
+    .agent-bar {
+        background: white; border: 1px solid #E8EDF2; border-radius: 12px;
+        padding: 0.7rem 1rem; display: flex; align-items: center; justify-content: space-between;
+        font-size: 0.82rem; margin-bottom: 1rem;
+    }
+    .agent-name { font-weight: 700; color: #0D1B3E; }
+    .agent-role { color: #8898AA; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% set c = resultat.colis %}
+{% set etapes_ordre = ['RAMASSE','EN_CONTENEUR','PARTI','ARRIVE','LIVRE'] %}
+{% set idx_actuel = etapes_ordre.index(c.statut) if c.statut in etapes_ordre else 0 %}
+
+<div class="scan-page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="agent-bar">
+        <span>👤 <span class="agent-name">{{ session.agent_nom }}</span></span>
+        <span class="agent-role">Agent terrain</span>
+    </div>
+
+    <div class="colis-scanné">
+        <div class="colis-num">{{ numero }}</div>
+        <div class="colis-desc">{{ c.description }}</div>
+        <div class="colis-meta">
+            📤 {{ c.client_prenom }} {{ c.client_nom }}<br>
+            📍 {{ c.dest_prenom }} {{ c.dest_nom }} · {{ c.dest_ville }}{% if c.dest_quartier %} · {{ c.dest_quartier }}{% endif %}
+        </div>
+        <div class="colis-statut-actuel">Statut actuel : {{ labels[c.statut] }}</div>
+    </div>
+
+    <form method="POST" action="{{ url_for('track_changer_statut', tracking_id=numero) }}" id="updateForm">
+        <input type="hidden" name="statut" id="statutSelectionne" value="">
+        <div class="update-card">
+            <div class="update-title">🔄 Mettre à jour le statut</div>
+            <div class="statut-grid">
+                {% set statuts = [
+                    ('RAMASSE',      '📦', 'Ramassé',       'Colis récupéré'),
+                    ('EN_CONTENEUR', '🏭', 'En conteneur',  'Chargé'),
+                    ('PARTI',        '🚢', 'Parti',         'En transit'),
+                    ('ARRIVE',       '⚓', 'Arrivé Douala', 'Au port'),
+                    ('LIVRE',        '✅', 'Livré',         'Remis')
+                ] %}
+                {% for code, emoji, label, sous in statuts %}
+                <button type="button"
+                        class="statut-btn {% if c.statut == code %}actuel{% endif %}"
+                        data-statut="{{ code }}"
+                        onclick="selectionnerStatut('{{ code }}', this)">
+                    <span class="emoji">{{ emoji }}</span>
+                    <span>{{ label }}</span>
+                    <span style="font-size:0.7rem; color:#8898AA; font-weight:400;">{{ sous }}</span>
+                </button>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                <label>📍 Localisation (optionnel)</label>
+                <input type="text" name="localisation" placeholder="Ex: Port du Havre, Entrepôt...">
+            </div>
+            <div class="form-group">
+                <label>💬 Commentaire (optionnel)</label>
+                <input type="text" name="commentaire" placeholder="Ex: Colis reçu en bon état...">
+            </div>
+            <button type="submit" class="btn-valider" id="btnValider" disabled>Sélectionnez un statut</button>
+        </div>
+    </form>
+
+    {% if resultat.historique %}
+    <div class="update-card">
+        <div class="update-title">📋 Historique ({{ resultat.historique|length }} événements)</div>
+        {% for h in resultat.historique | reverse | list %}
+            {% if loop.index <= 4 %}
+            <div class="histo-item">
+                <div class="histo-dot"></div>
+                <div>
+                    <div class="histo-statut">{{ labels[h.statut] }}</div>
+                    {% if h.commentaire %}<div style="color:#4A5568; font-size:0.78rem;">{{ h.commentaire }}</div>{% endif %}
+                    {% if h.localisation %}<div style="color:#8898AA; font-size:0.75rem;">📍 {{ h.localisation }}</div>{% endif %}
+                    <div class="histo-date">{{ h.date_action[:16].replace('T',' ') }} · {{ h.agent or 'Système' }}</div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="text-align:center; padding:0.5rem; margin-bottom:2rem;">
+        <a href="{{ url_for('admin_dashboard') }}" style="color:#8898AA; font-size:0.82rem; text-decoration:none;">← Retour admin</a>
+    </div>
+</div>
+
+<script>
+const LABELS = {{ labels | tojson }};
+function selectionnerStatut(code, btn) {
+    document.querySelectorAll('.statut-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('statutSelectionne').value = code;
+    const btnValider = document.getElementById('btnValider');
+    btnValider.disabled = false;
+    btnValider.textContent = '✅ Confirmer : ' + LABELS[code];
+}
+document.getElementById('updateForm').addEventListener('submit', function(e) {
+    const statut = document.getElementById('statutSelectionne').value;
+    if (!statut) { e.preventDefault(); return; }
+    if (!confirm('Confirmer le statut "' + (LABELS[statut] || statut) + '" ?')) e.preventDefault();
+});
+</script>
+{% endblock %}

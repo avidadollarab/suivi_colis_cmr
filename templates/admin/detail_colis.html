@@ -99,10 +99,13 @@
     </div>
     <div style="text-align:right; color:#718096; font-size:0.88rem;">
         <div>📅 Enregistré le {{ c.date_creation[:10] }}</div>
-        <div>👤 {{ c.client_prenom }} {{ c.client_nom }} → {{ c.dest_ville }}</div>
-        <div style="margin-top:0.5rem;">
-            <a href="{{ url_for('suivre') }}?numero={{ c.numero_suivi }}" target="_blank" class="btn btn-blue btn-sm">
-                🔍 Vue client
+        <div>👤 {% if c.id_client %}<a href="{{ url_for('fiche_client', client_id=c.id_client) }}">{{ c.client_prenom }} {{ c.client_nom }}</a>{% else %}{{ c.client_prenom }} {{ c.client_nom }}{% endif %} → {{ c.dest_ville }}</div>
+        <div style="margin-top:0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a href="{{ url_for('track', tracking_id=c.numero_suivi) }}" target="_blank" class="btn btn-blue btn-sm">
+                📱 QR / Suivi
+            </a>
+            <a href="{{ url_for('etiquette_colis', numero_suivi=c.numero_suivi) }}" class="btn btn-orange btn-sm">
+                🖨 Étiquette
             </a>
         </div>
     </div>
@@ -121,7 +124,7 @@
         {% endif %}
     </div>
     {% if not c.est_paye %}
-    <form method="POST" action="{{ url_for('marquer_paiement', numero_suivi=c.numero_suivi) }}">
+    <form method="POST" action="{{ url_for('paiement', numero_suivi=c.numero_suivi) }}">
         <button type="submit" class="btn btn-green btn-sm">Marquer comme payé</button>
     </form>
     {% endif %}

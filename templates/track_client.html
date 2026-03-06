@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Suivi {{ numero }} · ELISÉE XPRESS LOG{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background: #F5F7FA; }
+    .track-client { max-width: 560px; margin: 0 auto; padding: 1.5rem; }
+    .colis-header {
+        background: white; border: 1px solid var(--border); border-radius: 16px;
+        padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 1rem; box-shadow: 0 2px 12px rgba(13,31,45,0.05);
+    }
+    .colis-num { font-family: 'DM Mono', monospace; font-size: 1.5rem; font-weight: 500; color: var(--navy); letter-spacing: 1px; }
+    .colis-meta { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; }
+    .progress-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 1rem; box-shadow: 0 2px 12px rgba(13,31,45,0.05); overflow-x: auto; }
+    .progress-steps { display: flex; align-items: flex-start; min-width: 400px; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; flex: 1; }
+    .step-circle { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 2.5px solid var(--border); background: var(--bg); }
+    .step.done .step-circle { background: var(--green); border-color: var(--green); }
+    .step.active .step-circle { background: white; border-color: var(--green); border-width: 3px; box-shadow: 0 0 0 5px var(--green-light); }
+    .step.future .step-circle { opacity: 0.4; }
+    .step-label { font-size: 0.78rem; font-weight: 600; color: var(--slate); text-align: center; max-width: 80px; }
+    .step.done .step-label, .step.active .step-label { color: var(--navy); }
+    .step-date { font-size: 0.7rem; color: var(--muted); text-align: center; }
+    .step-line { flex: 1; height: 3px; background: var(--border); margin-top: 22px; border-radius: 2px; }
+    .step-line.done { background: var(--green); }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .info-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(13,31,45,0.05); }
+    .info-card-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
+    .info-row { display: flex; justify-content: space-between; padding: 0.45rem 0; font-size: 0.88rem; border-bottom: 1px solid #F5F7FA; }
+    .info-row:last-child { border: none; }
+    .info-row .lbl { color: var(--muted); }
+    .info-row .val { font-weight: 600; color: var(--navy); text-align: right; }
+    .timeline-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 2rem; box-shadow: 0 2px 12px rgba(13,31,45,0.05); }
+    .timeline-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 1.2rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
+    .tl-item { display: flex; gap: 1rem; padding: 0.7rem 0; position: relative; }
+    .tl-item:not(:last-child)::after { content: ''; position: absolute; left: 9px; top: 30px; bottom: -10px; width: 2px; background: var(--border); }
+    .tl-dot { width: 20px; height: 20px; border-radius: 50%; background: var(--green-light); border: 2px solid var(--green); flex-shrink: 0; margin-top: 2px; }
+    .tl-item:first-child .tl-dot { background: var(--green); }
+    .tl-statut { font-weight: 700; font-size: 0.92rem; color: var(--navy); }
+    .tl-comment { font-size: 0.82rem; color: var(--slate); margin-top: 0.15rem; }
+    .tl-date { font-size: 0.78rem; color: var(--muted); flex-shrink: 0; padding-top: 3px; white-space: nowrap; }
+    .cta-agent {
+        background: linear-gradient(135deg, #0D1B3E, #1a3a6b);
+        border-radius: 16px;
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    .cta-agent a { color: #D4AF37; font-weight: 700; text-decoration: none; }
+    .cta-agent a:hover { text-decoration: underline; }
+    @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } .progress-steps { min-width: 320px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+{% set c = resultat.colis %}
+{% set etapes = resultat.etapes_ordonnees %}
+{% set idx_actuel = etapes.index(c.statut) if c.statut in etapes else 0 %}
+{% set icones = {'RAMASSE': '📦', 'EN_CONTENEUR': '🏭', 'PARTI': '🚢', 'ARRIVE': '⚓', 'LIVRE': '✅'} %}
+{% set labels_courts = {'RAMASSE': 'Ramassé', 'EN_CONTENEUR': 'Conteneur', 'PARTI': 'En transit', 'ARRIVE': 'À Douala', 'LIVRE': 'Livré'} %}
+{% set dates_etapes = {'RAMASSE': c.date_ramassage, 'EN_CONTENEUR': c.date_conteneur, 'PARTI': c.date_depart, 'ARRIVE': c.date_arrivee, 'LIVRE': c.date_livraison} %}
+
+<div class="track-client">
+    <div class="colis-header">
+        <div>
+            <div class="colis-num">{{ c.numero_suivi }}</div>
+            <div class="colis-meta">Enregistré le {{ c.date_creation[:10] }} · {{ c.description }}</div>
+        </div>
+        <div>
+            <span class="badge badge-{{ resultat.couleurs[c.statut] }}">{{ resultat.labels[c.statut] }}</span>
+        </div>
+    </div>
+
+    <div class="progress-card">
+        <div class="progress-steps">
+            {% for etape in etapes %}
+                {% set i = loop.index0 %}
+                {% set etat = 'done' if i < idx_actuel else ('active' if i == idx_actuel else 'future') %}
+                {% set date_e = dates_etapes.get(etape) %}
+                <div class="step {{ etat }}">
+                    <div class="step-circle">{{ icones.get(etape, '•') }}</div>
+                    <div class="step-label">{{ labels_courts.get(etape, etape) }}</div>
+                    {% if date_e %}<div class="step-date">{{ date_e[:10] }}</div>{% endif %}
+                </div>
+                {% if not loop.last %}<div class="step-line {% if i < idx_actuel %}done{% endif %}"></div>{% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-card">
+            <div class="info-card-title">📦 Détails du colis</div>
+            <div class="info-row"><span class="lbl">Contenu</span><span class="val">{{ c.description }}</span></div>
+            {% if c.poids_kg %}<div class="info-row"><span class="lbl">Poids</span><span class="val">{{ c.poids_kg }} kg</span></div>{% endif %}
+            <div class="info-row"><span class="lbl">Nombre de colis</span><span class="val">{{ c.nombre_pieces }}</span></div>
+        </div>
+        <div class="info-card">
+            <div class="info-card-title">🇨🇲 Destinataire</div>
+            <div class="info-row"><span class="lbl">Nom</span><span class="val">{{ c.dest_prenom }} {{ c.dest_nom }}</span></div>
+            <div class="info-row"><span class="lbl">Ville</span><span class="val">{{ c.dest_ville }}</span></div>
+            <div class="info-row"><span class="lbl">Téléphone</span><span class="val">{{ c.dest_tel }}</span></div>
+        </div>
+    </div>
+
+    <div class="timeline-card">
+        <div class="timeline-title">📋 Historique du trajet</div>
+        {% for h in resultat.historique | reverse %}
+        <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div>
+                <div class="tl-statut">{{ resultat.labels[h.statut] }}</div>
+                {% if h.commentaire %}<div class="tl-comment">{{ h.commentaire }}</div>{% endif %}
+            </div>
+            <div class="tl-date">{{ h.date_action[:16] | replace('T', ' ') }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="cta-agent">
+        <p style="margin-bottom:0.5rem;">Besoin d'aide ?</p>
+        <a href="{{ url_for('index') }}">Contacter le support →</a>
+        <p style="margin-top:1rem; font-size:0.85rem; opacity:0.9;">Agent ? <a href="{{ url_for('login', next=url_for('track', tracking_id=numero)) }}">Se connecter pour mettre à jour</a></p>
+    </div>
+</div>
+{% endblock %}
