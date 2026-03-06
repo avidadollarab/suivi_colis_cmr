@@ -360,7 +360,7 @@ def consulter_colis(numero_suivi):
 
     cursor.execute(f"""
         SELECT
-            c.id, c.id_client, c.numero_suivi, c.description, c.poids_kg, c.nombre_pieces,
+            c.id, c.id_client, c.id_destinataire, c.numero_suivi, c.description, c.poids_kg, c.nombre_pieces,
             c.statut, c.date_ramassage, c.date_conteneur, c.date_depart,
             c.date_arrivee, c.date_livraison, c.date_creation, c.notes,
             c.prix_total, c.est_paye,
@@ -368,10 +368,12 @@ def consulter_colis(numero_suivi):
             cl.prenom     AS client_prenom,
             cl.telephone  AS client_tel,
             cl.email      AS client_email,
+            cl.adresse_europe, cl.ville_europe, cl.pays_europe,
             d.nom         AS dest_nom,
             d.prenom      AS dest_prenom,
             d.telephone   AS dest_tel,
             d.ville       AS dest_ville,
+            d.adresse     AS dest_adresse,
             d.quartier    AS dest_quartier
         FROM colis c
         JOIN clients cl      ON c.id_client = cl.id
@@ -407,12 +409,204 @@ def tous_les_colis():
         SELECT c.id_client, c.numero_suivi, c.statut, c.description, c.poids_kg,
                c.date_creation, c.prix_total, c.est_paye,
                cl.nom AS client_nom, cl.prenom AS client_prenom,
+               cl.telephone AS client_tel,
                d.ville AS dest_ville
         FROM colis c
         JOIN clients cl ON c.id_client = cl.id
         JOIN destinataires d ON c.id_destinataire = d.id
         ORDER BY c.date_creation DESC
     """)
+    result = fetchall(cursor)
+    conn.close()
+    return result
+
+
+def rechercher_colis(query=None, statut=None):
+    """
+    Liste des colis avec filtres optionnels.
+    query : recherche par nom client, prénom, téléphone ou numéro de suivi.
+    statut : filtre par statut (RAMASSE, EN_CONTENEUR, PARTI, ARRIVE, LIVRE).
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    ph = p()
+    conditions = []
+    params = []
+
+    base_sql = """
+        SELECT c.id_client, c.numero_suivi, c.statut, c.description, c.poids_kg,
+               c.date_creation, c.prix_total, c.est_paye,
+               cl.nom AS client_nom, cl.prenom AS client_prenom,
+               cl.telephone AS client_tel,
+               d.ville AS dest_ville
+        FROM colis c
+        JOIN clients cl ON c.id_client = cl.id
+        JOIN destinataires d ON c.id_destinataire = d.id
+    """
+    if query and (q := (query or "").strip()):
+        pattern = f"%{q}%"
+        conditions.append(
+            f"(LOWER(cl.nom) LIKE LOWER({ph}) OR LOWER(cl.prenom) LIKE LOWER({ph}) "
+            f"OR cl.telephone LIKE {ph} OR c.numero_suivi LIKE {ph})"
+        )
+        params.extend([pattern, pattern, pattern, pattern])
+    if statut and statut in ("RAMASSE", "EN_CONTENEUR", "PARTI", "ARRIVE", "LIVRE"):
+        conditions.append(f"c.statut = {ph}")
+        params.append(statut)
+
+    where_clause = " WHERE " + " AND ".join(conditions) if conditions else ""
+    cursor.execute(
+        base_sql + where_clause + " ORDER BY c.date_creation DESC",
+        params
+    )
+    result = fetchall(cursor)
+    conn.close()
+    return result
+
+
+def modifier_colis(numero_suivi, data, agent_nom=None):
+    """
+    Modifie un colis existant (client, destinataire, description, etc.).
+    Ne modifie pas l'ID ni l'historique déjà effectué.
+    """
+    resultat = consulter_colis(numero_suivi)
+    if not resultat:
+        return False
+    c = resultat["colis"]
+    id_client = c["id_client"]
+    id_destinataire = c["id_destinataire"]
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    ph = p()
+
+    # Mise à jour client
+    cursor.execute(f"""
+        UPDATE clients SET
+            nom={ph}, prenom={ph}, telephone={ph}, email={ph},
+            adresse_europe={ph}, ville_europe={ph}, pays_europe={ph}
+        WHERE id={ph}
+    """, (
+        data.get("client_nom", c.get("client_nom", "")),
+        data.get("client_prenom", c.get("client_prenom", "")),
+        data.get("client_telephone") or data.get("client_tel", c.get("client_tel", "")),
+        data.get("client_email", c.get("client_email")),
+        data.get("client_adresse", c.get("adresse_europe")),
+        data.get("client_ville", c.get("ville_europe")),
+        data.get("client_pays", c.get("pays_europe", "France")),
+        id_client,
+    ))
+
+    # Mise à jour destinataire
+    cursor.execute(f"""
+        UPDATE destinataires SET
+            nom={ph}, prenom={ph}, telephone={ph}, ville={ph},
+            adresse={ph}, quartier={ph}
+        WHERE id={ph}
+    """, (
+        data.get("dest_nom", c.get("dest_nom", "")),
+        data.get("dest_prenom", c.get("dest_prenom", "")),
+        data.get("dest_telephone") or data.get("dest_tel", c.get("dest_tel", "")),
+        data.get("dest_ville", c.get("dest_ville", "")),
+        data.get("dest_adresse", c.get("dest_adresse")),
+        data.get("dest_quartier", c.get("dest_quartier")),
+        id_destinataire,
+    ))
+
+    # Mise à jour colis
+    poids = data.get("poids")
+    if poids is not None:
+        try:
+            poids = float(poids)
+        except (TypeError, ValueError):
+            poids = c.get("poids_kg")
+    else:
+        poids = c.get("poids_kg")
+    prix = data.get("prix")
+    if prix is not None:
+        try:
+            prix = float(prix)
+        except (TypeError, ValueError):
+            prix = c.get("prix_total")
+    else:
+        prix = c.get("prix_total")
+    pieces = int(data.get("nb_pieces", c.get("nombre_pieces", 1)))
+
+    cursor.execute(f"""
+        UPDATE colis SET
+            description={ph}, poids_kg={ph}, nombre_pieces={ph},
+            prix_total={ph}, notes={ph}
+        WHERE numero_suivi={ph}
+    """, (
+        data.get("description", c.get("description", "")),
+        poids,
+        pieces,
+        prix,
+        data.get("notes", c.get("notes")),
+        numero_suivi,
+    ))
+
+    conn.commit()
+    conn.close()
+    return True
+
+
+def supprimer_colis(numero_suivi, agent_nom=None):
+    """
+    Supprime un colis et son historique de la base.
+    Les clients et destinataires ne sont pas supprimés (peuvent être réutilisés).
+    """
+    resultat = consulter_colis(numero_suivi)
+    if not resultat:
+        return False
+    c = resultat["colis"]
+    id_colis = c["id"]
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    ph = p()
+
+    cursor.execute(f"DELETE FROM historique_statuts WHERE id_colis = {ph}", (id_colis,))
+    cursor.execute(f"DELETE FROM colis WHERE id = {ph}", (id_colis,))
+    conn.commit()
+    conn.close()
+    return True
+
+
+def rapport_colis(date_debut, date_fin, type_rapport="list"):
+    """
+    Génère les données pour un rapport de colis sur une période.
+    date_debut, date_fin : str YYYY-MM-DD
+    type_rapport : 'list' (liste des colis) ou 'summary' (résumé par statut)
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    ph = p()
+
+    date_fin_limite = f"{date_fin} 23:59:59" if len(date_fin or "") <= 10 else date_fin
+
+    if type_rapport == "summary":
+        cursor.execute(f"""
+            SELECT c.statut, COUNT(*) AS nb
+            FROM colis c
+            WHERE c.date_creation >= {ph} AND c.date_creation <= {ph}
+            GROUP BY c.statut
+        """, (date_debut, date_fin_limite))
+        result = fetchall(cursor)
+        conn.close()
+        return result
+
+    cursor.execute(f"""
+        SELECT c.numero_suivi, c.date_creation, c.statut, c.description, c.poids_kg,
+               c.prix_total, c.est_paye,
+               cl.nom AS client_nom, cl.prenom AS client_prenom, cl.telephone AS client_tel,
+               d.ville AS dest_ville
+        FROM colis c
+        JOIN clients cl ON c.id_client = cl.id
+        JOIN destinataires d ON c.id_destinataire = d.id
+        WHERE c.date_creation >= {ph} AND c.date_creation <= {ph}
+        ORDER BY c.date_creation DESC
+    """, (date_debut, date_fin_limite))
     result = fetchall(cursor)
     conn.close()
     return result

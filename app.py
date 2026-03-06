@@ -20,7 +20,8 @@ from database import (
     ajouter_client, ajouter_destinataire,
     enregistrer_colis, mettre_a_jour_statut, consulter_colis,
     tous_les_colis, tous_les_clients, tous_les_destinataires,
-    rechercher_clients,
+    rechercher_clients, rechercher_colis,
+    modifier_colis, supprimer_colis, rapport_colis,
     get_agent, marquer_paye,
     get_client_by_id, get_colis_by_client
 )
@@ -206,8 +207,12 @@ def api_admin_me():
 @app.route("/api/admin/colis")
 @_api_require_auth
 def api_admin_colis():
-    """Liste tous les colis."""
-    colis = tous_les_colis()
+    """Liste les colis avec filtres optionnels : ?query=... & ?status=..."""
+    query = request.args.get("query", "").strip() or None
+    status = request.args.get("status", "").strip().upper() or None
+    if status and status not in ("RAMASSE", "EN_CONTENEUR", "PARTI", "ARRIVE", "LIVRE"):
+        status = None
+    colis = rechercher_colis(query=query, statut=status)
     stats = {
         "total": len(colis),
         "ramasse": sum(1 for c in colis if c["statut"] == "RAMASSE"),
@@ -280,10 +285,15 @@ def api_admin_colis_detail(numero_suivi):
             "client_nom": c.get("client_nom", ""),
             "client_prenom": c.get("client_prenom", ""),
             "client_tel": c.get("client_tel", ""),
+            "client_email": c.get("client_email"),
+            "adresse_europe": c.get("adresse_europe"),
+            "ville_europe": c.get("ville_europe"),
+            "pays_europe": c.get("pays_europe", "France"),
             "dest_nom": c.get("dest_nom", ""),
             "dest_prenom": c.get("dest_prenom", ""),
             "dest_tel": c.get("dest_tel", ""),
             "dest_ville": c.get("dest_ville", ""),
+            "dest_adresse": c.get("dest_adresse"),
             "dest_quartier": c.get("dest_quartier"),
             "notes": c.get("notes"),
         },
@@ -385,6 +395,27 @@ def api_admin_colis_paiement(numero_suivi):
     return jsonify({"ok": True})
 
 
+@app.route("/api/admin/colis/<numero_suivi>", methods=["PUT"])
+@_api_require_auth
+def api_admin_colis_update(numero_suivi):
+    """Modifier un colis (client, destinataire, description, etc.)."""
+    data = request.get_json() or {}
+    succes = modifier_colis(numero_suivi, data, agent_nom=_agent_nom())
+    if not succes:
+        return jsonify({"error": "Colis introuvable ou modification impossible"}), 400
+    return jsonify({"ok": True, "numero_suivi": numero_suivi})
+
+
+@app.route("/api/admin/colis/<numero_suivi>", methods=["DELETE"])
+@_api_require_auth
+def api_admin_colis_delete(numero_suivi):
+    """Supprimer un colis et son historique."""
+    succes = supprimer_colis(numero_suivi, agent_nom=_agent_nom())
+    if not succes:
+        return jsonify({"error": "Colis introuvable"}), 404
+    return jsonify({"ok": True})
+
+
 @app.route("/api/admin/clients")
 @_api_require_auth
 def api_admin_clients():
@@ -406,6 +437,57 @@ def api_admin_destinataires():
     """Liste des destinataires."""
     destinataires = tous_les_destinataires()
     return jsonify({"destinataires": destinataires})
+
+
+@app.route("/api/admin/reports")
+@_api_require_auth
+def api_admin_reports():
+    """
+    Export / bilan CSV par période.
+    GET ?from=YYYY-MM-DD&to=YYYY-MM-DD&type=list|summary
+    """
+    from io import StringIO
+    from csv import writer as csv_writer
+    date_from = request.args.get("from", "").strip()
+    date_to = request.args.get("to", "").strip()
+    report_type = request.args.get("type", "list").strip().lower()
+    if report_type not in ("list", "summary"):
+        report_type = "list"
+    if not date_from or not date_to:
+        return jsonify({"error": "Paramètres from et to requis (YYYY-MM-DD)"}), 400
+    rows = rapport_colis(date_from, date_to, type_rapport=report_type)
+    buffer = StringIO()
+    w = csv_writer(buffer)
+    if report_type == "summary":
+        w.writerow(["Statut", "Nombre"])
+        for r in rows:
+            w.writerow([r.get("statut", ""), r.get("nb", 0)])
+    else:
+        w.writerow([
+            "Date création", "N° Suivi", "Client", "Téléphone", "Ville destination",
+            "Statut", "Description", "Poids (kg)", "Prix (€)", "Payé"
+        ])
+        for r in rows:
+            client = f"{r.get('client_prenom', '')} {r.get('client_nom', '')}".strip()
+            date_c = (r.get("date_creation") or "")[:10]
+            w.writerow([
+                date_c,
+                r.get("numero_suivi", ""),
+                client,
+                r.get("client_tel", ""),
+                r.get("dest_ville", ""),
+                r.get("statut", ""),
+                r.get("description", ""),
+                r.get("poids_kg", ""),
+                r.get("prix_total", ""),
+                "Oui" if r.get("est_paye") else "Non",
+            ])
+    buffer.seek(0)
+    filename = f"rapport_colis_{date_from.replace('-', '')}-{date_to.replace('-', '')}.csv"
+    response = make_response(buffer.getvalue())
+    response.headers["Content-Type"] = "text/csv; charset=utf-8"
+    response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
 
 
 @app.route("/api/client/<int:client_id>")

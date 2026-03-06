@@ -7,6 +7,8 @@ import {
   apiAdminColisDetail,
   apiAdminColisStatut,
   apiAdminColisPaiement,
+  apiAdminColisUpdate,
+  apiAdminColisDelete,
 } from "@/data/api";
 import { Button } from "@/components/Button";
 import { IconQr, IconPrinter, IconUser } from "@/components/icons";
@@ -34,6 +36,7 @@ export default function DetailColisPage() {
   const [updating, setUpdating] = useState(false);
   const [nouveauStatut, setNouveauStatut] = useState("");
   const [commentaire, setCommentaire] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const load = () => {
     apiAdminColisDetail(numero)
@@ -69,6 +72,20 @@ export default function DetailColisPage() {
     try {
       await apiAdminColisPaiement(numero);
       load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setUpdating(true);
+    setError("");
+    try {
+      await apiAdminColisDelete(numero);
+      setShowDeleteConfirm(false);
+      router.push("/admin");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
     } finally {
@@ -132,8 +149,49 @@ export default function DetailColisPage() {
               Fiche client
             </Link>
           )}
+          <Link
+            href={`/admin/colis/${numero}/modifier`}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 text-sm"
+          >
+            Modifier
+          </Link>
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirm(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 text-sm"
+          >
+            Supprimer
+          </button>
         </div>
       </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmer la suppression</h3>
+            <p className="text-gray-600 mb-6">
+              Voulez-vous vraiment supprimer ce colis ? Cette action est irréversible.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="glass"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={updating}
+              >
+                Annuler
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleDelete}
+                disabled={updating}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {updating ? "..." : "Supprimer"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 text-red-700">

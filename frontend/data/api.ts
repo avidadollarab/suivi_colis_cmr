@@ -10,17 +10,22 @@ const API_BASE =
 
 const TOKEN_KEY = "elisee_admin_token";
 
+/**
+ * Session admin : on utilise sessionStorage (et non localStorage).
+ * Le token est détruit à la fermeture de l'onglet.
+ * Il est aussi détruit dès qu'on quitte la section admin (voir ConditionalLayout).
+ */
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
+  return sessionStorage.getItem(TOKEN_KEY);
 }
 
 export function setToken(token: string): void {
-  if (typeof window !== "undefined") localStorage.setItem(TOKEN_KEY, token);
+  if (typeof window !== "undefined") sessionStorage.setItem(TOKEN_KEY, token);
 }
 
 export function clearToken(): void {
-  if (typeof window !== "undefined") localStorage.removeItem(TOKEN_KEY);
+  if (typeof window !== "undefined") sessionStorage.removeItem(TOKEN_KEY);
 }
 
 function authHeaders(): HeadersInit {
@@ -59,8 +64,12 @@ export async function apiAdminMe() {
   return (await res.json()).agent;
 }
 
-export async function apiAdminColis() {
-  const res = await fetch(`${API_BASE}/api/admin/colis`, { headers: authHeaders() });
+export async function apiAdminColis(params?: { query?: string; status?: string }) {
+  const sp = new URLSearchParams();
+  if (params?.query) sp.set("query", params.query);
+  if (params?.status) sp.set("status", params.status);
+  const url = `${API_BASE}/api/admin/colis${sp.toString() ? `?${sp}` : ""}`;
+  const res = await fetch(url, { headers: authHeaders() });
   if (res.status === 401) throw new Error("Non autorisé");
   if (!res.ok) throw new Error("Erreur");
   return res.json();
@@ -122,6 +131,43 @@ export async function apiAdminDestinataires() {
   if (res.status === 401) throw new Error("Non autorisé");
   if (!res.ok) throw new Error("Erreur");
   return (await res.json()).destinataires;
+}
+
+export async function apiAdminColisUpdate(numero: string, data: Record<string, unknown>) {
+  const res = await fetch(`${API_BASE}/api/admin/colis/${encodeURIComponent(numero)}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || "Erreur");
+  return json;
+}
+
+export async function apiAdminColisDelete(numero: string) {
+  const res = await fetch(`${API_BASE}/api/admin/colis/${encodeURIComponent(numero)}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || "Erreur");
+  return json;
+}
+
+export async function apiAdminReportsDownload(params: {
+  from: string;
+  to: string;
+  type: "list" | "summary";
+}): Promise<Blob> {
+  const sp = new URLSearchParams({
+    from: params.from,
+    to: params.to,
+    type: params.type,
+  });
+  const res = await fetch(`${API_BASE}/api/admin/reports?${sp}`, { headers: authHeaders() });
+  if (res.status === 401) throw new Error("Non autorisé");
+  if (!res.ok) throw new Error("Erreur");
+  return res.blob();
 }
 
 const FRONTEND_URL =
