@@ -324,6 +324,21 @@ def api_admin_colis_create():
         prix=prix,
         notes=data.get("notes"),
     )
+    # Notification RAMASSE au client (SMS + email)
+    resultat = consulter_colis(numero)
+    if resultat:
+        c = resultat["colis"]
+        try:
+            envoyer_notifications(
+                numero_suivi=numero,
+                nouveau_statut="RAMASSE",
+                tel_expediteur=c["client_tel"],
+                tel_destinataire=c["dest_tel"],
+                ville_destinataire=c["dest_ville"],
+                email_expediteur=c.get("client_email"),
+            )
+        except Exception:
+            pass
     return jsonify({"ok": True, "numero_suivi": numero})
 
 
@@ -354,6 +369,7 @@ def api_admin_colis_statut(numero_suivi):
                 tel_expediteur=c["client_tel"],
                 tel_destinataire=c["dest_tel"],
                 ville_destinataire=c["dest_ville"],
+                email_expediteur=c.get("client_email"),
             )
         except Exception:
             pass
@@ -546,6 +562,21 @@ def nouveau_colis():
             description=f["description"], poids=poids,
             nb_pieces=pieces, prix=prix, notes=f.get("notes")
         )
+        # Notification RAMASSE au client
+        resultat = consulter_colis(numero)
+        if resultat:
+            c = resultat["colis"]
+            try:
+                envoyer_notifications(
+                    numero_suivi=numero,
+                    nouveau_statut="RAMASSE",
+                    tel_expediteur=c["client_tel"],
+                    tel_destinataire=c["dest_tel"],
+                    ville_destinataire=c["dest_ville"],
+                    email_expediteur=c.get("client_email"),
+                )
+            except Exception:
+                pass
         flash(f"Colis enregistre ! Numero : {numero}", "success")
         return redirect(url_for("admin_dashboard"))
 
@@ -619,9 +650,10 @@ def changer_statut(numero_suivi):
                     nouveau_statut     = nouveau_statut,
                     tel_expediteur     = c["client_tel"],
                     tel_destinataire   = c["dest_tel"],
-                    ville_destinataire = c["dest_ville"]
+                    ville_destinataire = c["dest_ville"],
+                    email_expediteur   = c.get("client_email"),
                 )
-                nb = resultats["sms"] + resultats["whatsapp"] + resultats["simules"]
+                nb = resultats["sms"] + resultats["whatsapp"] + resultats.get("email", 0) + resultats["simules"]
                 if nb > 0:
                     flash(f"📱 {nb} notification(s) envoyee(s) au client et destinataire.", "info")
                 elif not twilio_configure():
@@ -691,9 +723,10 @@ def track_changer_statut(tracking_id):
                     nouveau_statut=nouveau_statut,
                     tel_expediteur=c["client_tel"],
                     tel_destinataire=c["dest_tel"],
-                    ville_destinataire=c["dest_ville"]
+                    ville_destinataire=c["dest_ville"],
+                    email_expediteur=c.get("client_email"),
                 )
-                nb = resultats["sms"] + resultats["whatsapp"] + resultats["simules"]
+                nb = resultats["sms"] + resultats["whatsapp"] + resultats.get("email", 0) + resultats["simules"]
                 if nb > 0:
                     flash(f"📱 {nb} notification(s) envoyee(s).", "info")
                 elif not twilio_configure():

@@ -367,6 +367,7 @@ def consulter_colis(numero_suivi):
             cl.nom        AS client_nom,
             cl.prenom     AS client_prenom,
             cl.telephone  AS client_tel,
+            cl.email      AS client_email,
             d.nom         AS dest_nom,
             d.prenom      AS dest_prenom,
             d.telephone   AS dest_tel,

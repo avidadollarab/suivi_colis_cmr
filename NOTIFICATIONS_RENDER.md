@@ -71,9 +71,28 @@ Les numéros doivent être au format international :
 
 ---
 
-## Email : non implémenté
+## Email (SMTP)
 
-Les notifications **par email** ne sont pas encore implémentées. Seuls SMS et WhatsApp sont disponibles via Twilio.
+Les notifications par **email** sont envoyées à l'expéditeur (client) à chaque changement de statut, si son email est renseigné.
+
+### Configuration Gmail (exemple)
+
+1. Active une **mot de passe d'application** sur ton compte Google : https://myaccount.google.com/apppasswords
+2. Ajoute sur Render :
+
+| Variable | Valeur |
+|----------|--------|
+| `SMTP_HOST` | smtp.gmail.com |
+| `SMTP_PORT` | 587 |
+| `SMTP_USER` | ton-email@gmail.com |
+| `SMTP_PASSWORD` | Mot de passe d'application (16 caractères) |
+| `SMTP_FROM` | (optionnel) ton-email@gmail.com |
+| `APP_URL` | https://elisee-xpress-frontend.onrender.com |
+
+### Autres fournisseurs
+
+- **Outlook** : SMTP_HOST=smtp.office365.com, SMTP_PORT=587
+- **OVH** : SMTP_HOST=ssl0.ovh.net, SMTP_PORT=587
 
 ---
 

@@ -35,66 +35,56 @@ if sys.platform == "win32":
 
 MESSAGES_EXPEDITEUR = {
     # Le client qui a envoyé le colis depuis l'Europe
+    "RAMASSE": (
+        "📦 Bonjour ! Votre colis {numero} a bien été ramassé. "
+        "Vous recevrez des mises à jour par SMS/email à chaque étape. "
+        "Suivez-le : {url}\n\n"
+        "📦 Hello! Your parcel {numero} has been picked up. "
+        "You will receive updates by SMS/email at each step. Track it: {url}",
+
+        "📦 Hello! Your parcel {numero} has been picked up. Track: {url}"
+    ),
     "EN_CONTENEUR": (
         "📦 Bonjour ! Votre colis {numero} a été déposé dans le conteneur "
-        "et sera prochainement acheminé vers le Cameroun. "
-        "Suivez-le sur notre site.\n\n"
-        "📦 Hello! Your parcel {numero} has been loaded into the container "
-        "and will soon be shipped to Cameroon. Track it on our website.",
+        "et sera prochainement acheminé vers le Cameroun. Suivez : {url}\n\n"
+        "📦 Hello! Your parcel {numero} has been loaded into the container. Track: {url}",
 
-        "📦 Hello! Your parcel {numero} has been loaded into the container "
-        "and will soon be shipped to Cameroon."
+        "📦 Hello! Your parcel {numero} has been loaded. Track: {url}"
     ),
     "PARTI": (
         "🚢 Bonne nouvelle ! Votre colis {numero} a quitté la France. "
-        "Il est actuellement en transit vers le Cameroun. "
-        "Durée estimée : 3 à 5 semaines.\n\n"
-        "🚢 Good news! Your parcel {numero} has left France. "
-        "It is currently in transit to Cameroon. "
-        "Estimated time: 3 to 5 weeks.",
+        "En transit vers le Cameroun (3-5 semaines). Suivez : {url}\n\n"
+        "🚢 Good news! Your parcel {numero} has left France. Track: {url}",
 
-        "🚢 Good news! Your parcel {numero} has left France. "
-        "Currently in transit to Cameroon."
+        "🚢 Your parcel {numero} left France. Track: {url}"
     ),
     "ARRIVE": (
-        "🇨🇲 Votre colis {numero} est arrivé au port de Douala, Cameroun ! "
-        "La livraison au destinataire sera organisée prochainement. "
-        "Merci de votre confiance.\n\n"
-        "🇨🇲 Your parcel {numero} has arrived at the port of Douala, Cameroon! "
-        "Delivery to the recipient will be arranged shortly.",
+        "🇨🇲 Votre colis {numero} est arrivé au port de Douala ! Suivez : {url}\n\n"
+        "🇨🇲 Your parcel {numero} has arrived at Douala port. Track: {url}",
 
-        "🇨🇲 Your parcel {numero} has arrived at Douala port, Cameroon!"
+        "🇨🇲 Your parcel {numero} arrived at Douala. Track: {url}"
     ),
     "LIVRE": (
-        "✅ Votre colis {numero} a été livré avec succès à {ville} ! "
-        "Merci de nous avoir fait confiance pour cet envoi.\n\n"
-        "✅ Your parcel {numero} has been successfully delivered in {ville}! "
-        "Thank you for trusting us with this shipment.",
+        "✅ Votre colis {numero} a été livré à {ville} ! Merci.\n\n"
+        "✅ Your parcel {numero} delivered in {ville}! Thank you.",
 
-        "✅ Your parcel {numero} has been successfully delivered in {ville}!"
+        "✅ Your parcel {numero} delivered in {ville}!"
     ),
 }
 
 MESSAGES_DESTINATAIRE = {
     # La personne qui reçoit au Cameroun
     "ARRIVE": (
-        "🇨🇲 Bonjour ! Un colis {numero} vous est destiné et vient d'arriver "
-        "au port de Douala. La livraison à {ville} sera organisée bientôt. "
-        "Restez disponible.\n\n"
-        "🇨🇲 Hello! A parcel {numero} for you has just arrived "
-        "at Douala port. Delivery to {ville} will be arranged soon. "
-        "Please stay available.",
+        "🇨🇲 Un colis {numero} vous est destiné, arrivé à Douala. Livraison à {ville} bientôt. Suivez : {url}\n\n"
+        "🇨🇲 Parcel {numero} for you arrived at Douala. Track: {url}",
 
-        "🇨🇲 Hello! Parcel {numero} for you arrived at Douala port. "
-        "Delivery to {ville} coming soon."
+        "🇨🇲 Parcel {numero} arrived. Track: {url}"
     ),
     "LIVRE": (
-        "✅ Bonjour ! Votre colis {numero} vous a été remis. "
-        "Nous espérons que vous êtes satisfait(e). Bonne réception !\n\n"
-        "✅ Hello! Your parcel {numero} has been delivered to you. "
-        "We hope you are satisfied. Enjoy!",
+        "✅ Votre colis {numero} vous a été remis. Merci !\n\n"
+        "✅ Your parcel {numero} has been delivered. Enjoy!",
 
-        "✅ Hello! Your parcel {numero} has been delivered. Enjoy!"
+        "✅ Your parcel {numero} delivered. Enjoy!"
     ),
 }
 
@@ -159,6 +149,52 @@ def _get_twilio_client():
         return None
 
 
+def _email_configure():
+    """Retourne True si l'email SMTP est configuré."""
+    host = os.environ.get("SMTP_HOST")
+    user = os.environ.get("SMTP_USER")
+    pwd = os.environ.get("SMTP_PASSWORD")
+    return bool(host and user and pwd)
+
+
+def _envoyer_email(destinataire, sujet, corps_texte):
+    """
+    Envoie un email via SMTP.
+    Variables : SMTP_HOST, SMTP_PORT (587), SMTP_USER, SMTP_PASSWORD, SMTP_FROM (optionnel)
+    """
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+    port = int(os.environ.get("SMTP_PORT", "587"))
+    user = os.environ.get("SMTP_USER")
+    pwd = os.environ.get("SMTP_PASSWORD")
+    from_addr = os.environ.get("SMTP_FROM") or user
+
+    if not user or not pwd:
+        print("[NOTIF] Email non configuré (SMTP_USER/SMTP_PASSWORD)")
+        return False
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = sujet
+        msg["From"] = from_addr
+        msg["To"] = destinataire
+
+        msg.attach(MIMEText(corps_texte, "plain", "utf-8"))
+
+        with smtplib.SMTP(host, port) as server:
+            server.starttls()
+            server.login(user, pwd)
+            server.sendmail(from_addr, [destinataire], msg.as_string())
+        print(f"[NOTIF] ✅ Email envoyé → {destinataire}")
+        return True
+    except Exception as e:
+        print(f"[NOTIF] ❌ Erreur email → {destinataire} : {e}")
+        return False
+
+
 def _envoyer_message(client, canal, from_number, to_number, texte):
     """
     Envoie un message via SMS ou WhatsApp.
@@ -192,11 +228,17 @@ def _envoyer_message(client, canal, from_number, to_number, texte):
 # FONCTION PRINCIPALE
 # ----------------------------------------------------------
 
+def _get_track_url(numero_suivi):
+    """URL de suivi du colis (frontend)."""
+    base = os.environ.get("APP_URL", "https://elisee-xpress-frontend.onrender.com")
+    return f"{base.rstrip('/')}/track/{numero_suivi}"
+
+
 def envoyer_notifications(numero_suivi, nouveau_statut,
                            tel_expediteur, tel_destinataire,
-                           ville_destinataire):
+                           ville_destinataire, email_expediteur=None):
     """
-    Envoie les notifications SMS + WhatsApp à l'expéditeur
+    Envoie les notifications SMS + WhatsApp + Email à l'expéditeur
     et/ou au destinataire selon le statut.
 
     Paramètres :
@@ -205,16 +247,18 @@ def envoyer_notifications(numero_suivi, nouveau_statut,
         tel_expediteur     : ex "+33612345678"
         tel_destinataire   : ex "+237699123456"
         ville_destinataire : ex "Douala"
+        email_expediteur   : ex "client@email.com" (optionnel)
 
     Retourne : dict avec le nombre de messages envoyés
     """
 
-    resultats = {"sms": 0, "whatsapp": 0, "simules": 0, "erreurs": 0}
+    resultats = {"sms": 0, "whatsapp": 0, "email": 0, "simules": 0, "erreurs": 0}
 
     # Prépare les variables de remplacement dans les messages
     vars_msg = {
         "numero": numero_suivi,
-        "ville":  ville_destinataire,
+        "ville":  ville_destinataire or "",
+        "url":    _get_track_url(numero_suivi),
     }
 
     # Initialise Twilio
@@ -229,7 +273,7 @@ def envoyer_notifications(numero_suivi, nouveau_statut,
     # ----------------------------------------------------------
     envois = []
 
-    # 1. Message à l'expéditeur (France)
+    # 1. Message à l'expéditeur (France) — SMS/WhatsApp
     if nouveau_statut in MESSAGES_EXPEDITEUR and tel_expediteur:
         texte_bilingue = MESSAGES_EXPEDITEUR[nouveau_statut][0].format(**vars_msg)
         envois.append(("expéditeur", tel_expediteur, texte_bilingue))
@@ -239,12 +283,29 @@ def envoyer_notifications(numero_suivi, nouveau_statut,
         texte_bilingue = MESSAGES_DESTINATAIRE[nouveau_statut][0].format(**vars_msg)
         envois.append(("destinataire", tel_destinataire, texte_bilingue))
 
-    if not envois:
+    if not envois and not (nouveau_statut in MESSAGES_EXPEDITEUR and email_expediteur):
         print(f"[NOTIF] Aucun message défini pour le statut '{nouveau_statut}' — rien envoyé.")
         return resultats
 
     # ----------------------------------------------------------
-    # Envoie les messages
+    # Envoi EMAIL à l'expéditeur (si configuré)
+    # ----------------------------------------------------------
+    if nouveau_statut in MESSAGES_EXPEDITEUR and email_expediteur:
+        email = str(email_expediteur).strip()
+        if email and "@" in email:
+            sujet = f"ELISÉE XPRESS — Colis {numero_suivi} : {nouveau_statut}"
+            corps = MESSAGES_EXPEDITEUR[nouveau_statut][0].format(**vars_msg)
+            if _email_configure():
+                if _envoyer_email(email, sujet, corps):
+                    resultats["email"] += 1
+                else:
+                    resultats["erreurs"] += 1
+            else:
+                print(f"[NOTIF SIMULATION] Email → {email}\n{corps[:200]}...")
+                resultats["simules"] += 1
+
+    # ----------------------------------------------------------
+    # Envoie les messages SMS / WhatsApp
     # ----------------------------------------------------------
     for (qui, telephone, texte) in envois:
         telephone = _normaliser_tel(telephone)
@@ -290,7 +351,11 @@ def apercu_message(statut, numero_suivi, ville_destinataire, destinataire="exped
     Retourne le texte du message qui sera envoyé,
     sans l'envoyer. Utile pour afficher un aperçu dans l'admin.
     """
-    vars_msg = {"numero": numero_suivi, "ville": ville_destinataire}
+    vars_msg = {
+        "numero": numero_suivi,
+        "ville": ville_destinataire or "",
+        "url": _get_track_url(numero_suivi),
+    }
     catalogue = MESSAGES_EXPEDITEUR if destinataire == "expediteur" else MESSAGES_DESTINATAIRE
     if statut not in catalogue:
         return None
