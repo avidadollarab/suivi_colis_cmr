@@ -18,7 +18,7 @@ Tu vois le site Next.js (chatbot) au lieu du backend Flask. Voici comment corrig
 | **Root Directory** | *(laisser vide)* |
 | **Runtime** | **Python 3** |
 | **Build Command** | `pip install -r requirements.txt` |
-| **Start Command** | `gunicorn app:app` |
+| **Start Command** | `gunicorn app:app --bind 0.0.0.0:$PORT` |
 
 5. Clique sur **Save Changes**
 6. Render va redéployer automatiquement (attends 2–3 min)
