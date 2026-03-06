@@ -74,7 +74,7 @@ export default function NouveauColisPage() {
         prix: form.prix ? parseFloat(form.prix) : undefined,
         nb_pieces: parseInt(form.nb_pieces, 10) || 1,
       });
-      router.push(`/admin/colis/${data.numero_suivi}`);
+      router.push(`/admin/colis/${data.numero_suivi}/succes`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
