@@ -6,8 +6,6 @@ import type { Shipment } from "@/data/mockShipments";
 import { getTrackUrl } from "@/data/api";
 import { Card } from "./Card";
 import { Timeline } from "./Timeline";
-import { Button } from "./Button";
-import Link from "next/link";
 import { IconBox, IconWarehouse, IconBoat, IconAnchor, IconCheckCircle, IconQr } from "./icons";
 import { MICRO_COPY } from "@/data/microCopy";
 
@@ -139,8 +137,8 @@ export function TrackingResult({ shipment, enableAnimations = true }: TrackingRe
           </div>
         </div>
 
-        {/* Infos colis */}
-        <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        {/* Infos colis - mobile: 2 cols, desktop: 4 cols. Texte min 14px */}
+        <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm min-w-0">
           <div>
             <p className="text-gray-500">{MICRO_COPY.tracking.summary.description}</p>
             <p className="font-medium">{shipment.description}</p>
@@ -194,14 +192,6 @@ export function TrackingResult({ shipment, enableAnimations = true }: TrackingRe
           </div>
         </div>
       </Card>
-
-      <div className="text-center">
-        <Link href="/">
-          <Button variant="glass" size="lg">
-            ← {MICRO_COPY.tracking.timeline.newSearch}
-          </Button>
-        </Link>
-      </div>
     </div>
   );
 }

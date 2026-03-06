@@ -117,23 +117,23 @@ export default function HomePage() {
         </ScrollReveal>
       </section>
 
-      {/* Réseau de collecte */}
-      <section className="py-16" style={{ background: "linear-gradient(160deg, #003d7a 0%, #0052A6 100%)" }}>
+      {/* Réseau de collecte — fond bleu vif */}
+      <section className="py-16" style={{ background: "linear-gradient(160deg, var(--hero-dark) 0%, var(--primary) 100%)" }}>
         <ScrollReveal className="container mx-auto px-4 max-w-4xl text-center text-white">
           <p className="text-gold font-bold text-xs uppercase tracking-widest mb-2">{MICRO_COPY.network.label}</p>
           <h2 className="text-2xl font-bold mb-2">{MICRO_COPY.network.title}</h2>
           <p className="text-white/80 text-sm mb-8">{MICRO_COPY.network.subtitle}</p>
           <div className="flex flex-wrap justify-center gap-2 mb-6">
             {CITIES.map((ville) => (
-              <span
-                key={ville}
-                className="px-3 py-1.5 rounded-full text-sm font-medium"
-                style={{ background: "rgba(244,176,0,0.15)", border: "1px solid rgba(244,176,0,0.3)", color: "#FFF8E6" }}
-              >
+            <span
+              key={ville}
+              className="px-3 py-1.5 rounded-full text-sm font-medium"
+              style={{ background: "rgba(255,197,51,0.2)", border: "1px solid rgba(255,197,51,0.4)", color: "#FFF9E6" }}
+            >
                 {ville}
               </span>
             ))}
-            <span className="px-3 py-1.5 rounded-full text-sm" style={{ background: "rgba(244,176,0,0.15)", border: "1px solid rgba(244,176,0,0.3)", color: "#FFF8E6" }}>
+            <span className="px-3 py-1.5 rounded-full text-sm" style={{ background: "rgba(255,197,51,0.2)", border: "1px solid rgba(255,197,51,0.4)", color: "#FFF9E6" }}>
               Ettenheim
             </span>
           </div>

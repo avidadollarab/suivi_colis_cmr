@@ -45,7 +45,7 @@ export function ServiceCard({
           ? {
               y: -4,
               transition: { duration: 0.22 },
-              boxShadow: "0 16px 40px rgba(0,82,166,0.12)",
+              boxShadow: "0 16px 40px rgba(0,98,201,0.15)",
             }
           : undefined
       }

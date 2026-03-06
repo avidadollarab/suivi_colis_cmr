@@ -20,7 +20,7 @@ export default function ContactPage() {
       title="Contact"
       subtitle="Une question ? Un devis ? Nous sommes à votre écoute."
     >
-      <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+      <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto px-4 sm:px-0">
         {/* Formulaire */}
         <Card>
           <h3 className="text-lg font-bold text-primary mb-6">

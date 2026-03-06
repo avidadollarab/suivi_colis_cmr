@@ -6,6 +6,7 @@ import Link from "next/link";
 import { fetchShipmentByNumber, apiAdminMe, apiAdminColisStatut, getToken } from "@/data/api";
 import type { Shipment } from "@/data/mockShipments";
 import { TrackingResult } from "@/components/TrackingResult";
+import { SearchAgainButton } from "@/components/SearchAgainButton";
 import { Button } from "@/components/Button";
 import { Logo } from "@/components/Logo";
 import { StatusIcon } from "@/components/StatusIcon";
@@ -142,7 +143,7 @@ export default function TrackPage() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 max-w-4xl py-8">
+      <main className="container mx-auto px-4 max-w-4xl py-8 min-w-0">
         {success && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 text-green-800">
             {success}
@@ -152,10 +153,11 @@ export default function TrackPage() {
         <TrackingResult shipment={shipment} enableAnimations={false} />
 
         {isAgent && (
-          <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-primary mb-4">Mettre à jour le statut</h2>
+          <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h2 className="text-base sm:text-lg font-bold text-primary mb-4">Mettre à jour le statut</h2>
             <form onSubmit={handleUpdateStatut} className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {/* Mobile: grille 2 colonnes. Desktop: 5 colonnes */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-2">
                 {STATUTS.map((s) => {
                   const isSelected = selectedStatut === s.code;
                   const isCurrent = shipment.statut === s.code;
@@ -165,7 +167,7 @@ export default function TrackPage() {
                       key={s.code}
                       type="button"
                       onClick={() => setSelectedStatut(s.code)}
-                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition ${
+                      className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition btn-glow ${
                         isSelected
                           ? "border-primary bg-primary text-white"
                           : isCurrent
@@ -184,7 +186,8 @@ export default function TrackPage() {
                   );
                 })}
               </div>
-              <div className="grid sm:grid-cols-2 gap-4">
+              {/* Mobile: pile verticale pleine largeur. Desktop: 2 colonnes */}
+              <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Localisation</label>
                   <input
@@ -192,7 +195,7 @@ export default function TrackPage() {
                     value={localisation}
                     onChange={(e) => setLocalisation(e.target.value)}
                     placeholder="Ex: Port du Havre"
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl"
+                    className="w-full px-4 py-3 sm:py-2 border-2 border-gray-200 rounded-xl text-base min-h-[44px]"
                   />
                 </div>
                 <div>
@@ -202,7 +205,7 @@ export default function TrackPage() {
                     value={commentaire}
                     onChange={(e) => setCommentaire(e.target.value)}
                     placeholder="Optionnel"
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl"
+                    className="w-full px-4 py-3 sm:py-2 border-2 border-gray-200 rounded-xl text-base min-h-[44px]"
                   />
                 </div>
               </div>
@@ -210,6 +213,7 @@ export default function TrackPage() {
                 type="submit"
                 variant="primary"
                 size="lg"
+                className="w-full sm:w-auto"
                 disabled={!selectedStatut || updating}
               >
                 {updating ? "Mise à jour..." : `Confirmer : ${selectedStatut ? LABELS[selectedStatut] : "—"}`}
@@ -218,11 +222,7 @@ export default function TrackPage() {
           </div>
         )}
 
-        <div className="mt-8 text-center">
-          <Link href="/">
-            <Button variant="glass" size="lg">← Nouvelle recherche</Button>
-          </Link>
-        </div>
+        <SearchAgainButton />
       </main>
     </div>
   );

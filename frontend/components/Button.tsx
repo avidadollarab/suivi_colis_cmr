@@ -7,13 +7,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
   as?: "button" | "a";
   href?: string;
+  /** Désactiver l'effet glow au hover. Par défaut: true pour primary, gold, heroGlass */
+  noGlow?: boolean;
 }
 
 const variants = {
   primary:
-    "bg-primary hover:bg-primary-dark text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.97] active:translate-y-0",
+    "bg-primary hover:bg-primary-dark text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.97] active:translate-y-0 btn-glow",
   gold:
-    "bg-gold hover:bg-gold-dark text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.97] active:translate-y-0",
+    "bg-gold hover:bg-gold-dark text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.97] active:translate-y-0 btn-glow",
   secondary:
     "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-200 hover:scale-[1.02] active:scale-[0.97]",
   outline:
@@ -21,7 +23,7 @@ const variants = {
   glass:
     "btn-glass rounded-full",
   heroGlass:
-    "btn-hero-glass rounded-full",
+    "btn-hero-glass rounded-full btn-glow",
 };
 
 const sizes = {
@@ -43,12 +45,14 @@ export function Button({
   className = "",
   as = "button",
   href,
+  noGlow = false,
   ...props
 }: ButtonProps) {
   const baseClasses =
     "inline-flex items-center justify-center font-semibold transition-smooth cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
   const sizeClasses = variant === "glass" || variant === "heroGlass" ? sizesGlass[size] : sizes[size];
-  const combinedClasses = `${baseClasses} ${variants[variant]} ${sizeClasses} ${className}`;
+  const glowClass = noGlow ? "btn-glow-no-animation" : "";
+  const combinedClasses = `${baseClasses} ${variants[variant]} ${sizeClasses} ${glowClass} ${className}`;
 
   if (as === "a" && href) {
     return (

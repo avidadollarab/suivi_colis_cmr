@@ -9,7 +9,7 @@ export default function NetworkPage() {
       subtitle="Nous collectons vos colis dans les villes et régions suivantes. Contactez-nous pour organiser un ramassage."
     >
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-8">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {CITIES.map((city) => (
               <div

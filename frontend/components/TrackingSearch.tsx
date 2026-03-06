@@ -52,8 +52,8 @@ export function TrackingSearch({
           isHeroGlass
             ? undefined
             : {
-                borderColor: isFocused ? "rgba(244,176,0,0.6)" : "rgb(229,231,235)",
-                boxShadow: isFocused && isLarge ? "0 0 0 3px rgba(244,176,0,0.15)" : undefined,
+                borderColor: isFocused ? "rgba(255,197,51,0.6)" : "rgb(229,231,235)",
+                boxShadow: isFocused && isLarge ? "0 0 0 3px rgba(255,197,51,0.2)" : undefined,
               }
         }
       >

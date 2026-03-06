@@ -18,9 +18,9 @@ export function CTAButton({ href, label, phone, enableAnimations = true, variant
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all duration-200 ${
+      className={`inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all duration-200 rounded-full ${
         isHeroGlass
-          ? "btn-hero-glass"
+          ? "btn-hero-glass btn-glow"
           : "bg-green-500 hover:bg-green-600 text-white rounded-xl shadow-lg"
       }`}
       style={isHeroGlass ? undefined : {}}

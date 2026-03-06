@@ -6,6 +6,7 @@ import { fetchShipmentByNumber } from "@/data/api";
 import type { Shipment } from "@/data/mockShipments";
 import { TrackingSearch } from "@/components/TrackingSearch";
 import { TrackingResult } from "@/components/TrackingResult";
+import { SearchAgainButton } from "@/components/SearchAgainButton";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { Button } from "@/components/Button";
 import Link from "next/link";
@@ -88,6 +89,7 @@ function TrackingContent() {
     <section className="py-12 md:py-16 bg-gradient-to-b from-primary/5 to-white min-h-[60vh]">
       <ScrollReveal className="container mx-auto px-4 max-w-5xl">
         <TrackingResult shipment={shipment} />
+        <SearchAgainButton />
       </ScrollReveal>
     </section>
   );

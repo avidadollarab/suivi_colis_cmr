@@ -71,12 +71,12 @@ export function HeroBanner({ enableAnimations = true }: HeroBannerProps) {
             sizes="100vw"
           />
         )}
-        {/* Overlay dégradé bleu nuit pour lisibilité */}
+        {/* Overlay dégradé bleu nuit (#001B4D) pour lisibilité */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(0,0,50,0.7) 0%, rgba(0,0,80,0.9) 100%)",
+              "linear-gradient(to bottom, rgba(0,27,77,0.75) 0%, rgba(0,27,77,0.92) 100%)",
           }}
         />
         {/* Mobile : assombrir davantage */}
@@ -84,7 +84,7 @@ export function HeroBanner({ enableAnimations = true }: HeroBannerProps) {
           className="absolute inset-0 md:hidden"
           style={{
             background:
-              "linear-gradient(180deg, rgba(0,30,60,0.6) 0%, rgba(0,45,90,0.85) 100%)",
+              "linear-gradient(180deg, rgba(0,27,77,0.7) 0%, rgba(0,27,77,0.9) 100%)",
           }}
         />
         {/* Texture légère */}

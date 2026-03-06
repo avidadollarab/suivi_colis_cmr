@@ -40,7 +40,7 @@ export function HeroTabs({
               isActive
                 ? {
                     boxShadow:
-                      "0 0 0 1px rgba(244,176,0,0.6), 0 0 16px rgba(244,176,0,0.25)",
+                      "0 0 0 1px rgba(255,197,51,0.6), 0 0 16px rgba(255,197,51,0.3)",
                   }
                 : undefined
             }
