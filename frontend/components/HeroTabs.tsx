@@ -1,11 +1,13 @@
 "use client";
 
+import { IconLocation, IconBox, IconAnchor } from "./icons";
+
 export type TabId = "europe" | "groupage" | "cameroun";
 
-const TABS: { id: TabId; label: string; flag: string }[] = [
-  { id: "europe", label: "Europe", flag: "🇪🇺" },
-  { id: "groupage", label: "Groupage Premium", flag: "📦" },
-  { id: "cameroun", label: "Cameroun", flag: "🇨🇲" },
+const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
+  { id: "europe", label: "Europe", icon: <IconLocation size={18} strokeWidth={2} /> },
+  { id: "groupage", label: "Groupage Premium", icon: <IconBox size={18} strokeWidth={2} /> },
+  { id: "cameroun", label: "Cameroun", icon: <IconAnchor size={18} strokeWidth={2} /> },
 ];
 
 interface HeroTabsProps {
@@ -44,7 +46,7 @@ export function HeroTabs({
             }
           >
             <span className="flex items-center gap-2">
-              <span className="text-base">{tab.flag}</span>
+              <span className="flex items-center justify-center">{tab.icon}</span>
               <span>{tab.label}</span>
             </span>
           </button>

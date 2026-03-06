@@ -48,7 +48,19 @@ Sur **https://console.twilio.com** :
 
 ### 5. Ajouter les variables sur Render
 
-1. Render → ton **Web Service** → **Environment**
+**Option A — Script automatique (recommandé)**
+
+```bash
+python scripts/config_twilio_render.py
+```
+
+Le script te demande tes identifiants Twilio et la clé API Render, puis envoie les variables automatiquement. Tu as besoin de :
+- **RENDER_API_KEY** : Render → Account Settings → API Keys
+- **RENDER_SERVICE_ID** : ID du service backend (ex : srv-xxx)
+
+**Option B — Manuel**
+
+1. Render → ton **Web Service** (suivi-colis-cmr) → **Environment**
 2. **Add Environment Variable** pour chacune :
 
 | Variable | Valeur |
@@ -59,6 +71,13 @@ Sur **https://console.twilio.com** :
 | `TWILIO_WA_FROM` | Numéro WhatsApp sandbox (ex : whatsapp:+14155238886) |
 
 3. **Save Changes** → Render redémarre
+
+**Tester que tu reçois bien les SMS :**
+
+```bash
+# Définis les variables Twilio (ou charge un .env)
+python scripts/test_twilio_sms.py +33612345678
+```
 
 ---
 

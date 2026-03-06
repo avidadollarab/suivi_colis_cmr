@@ -41,11 +41,11 @@ export function TimelineStep({
     >
       <motion.div
         className={`relative z-10 flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-          isCompleted
-            ? "bg-primary text-white"
-            : isCurrent
-            ? "bg-primary/20 text-primary border-2 border-primary ring-4 ring-gold/30"
-            : "bg-gray-200 text-gray-500"
+          isCurrent
+            ? "bg-primary text-white border-2 border-primary ring-4 ring-primary/20"
+            : isCompleted
+            ? "bg-primary/10 text-primary border-2 border-primary"
+            : "bg-gray-100 border-2 border-gray-200 text-gray-400"
         }`}
         animate={
           isCurrent && enableAnimations

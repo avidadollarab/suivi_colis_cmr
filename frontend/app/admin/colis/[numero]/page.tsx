@@ -9,6 +9,7 @@ import {
   apiAdminColisPaiement,
 } from "@/data/api";
 import { Button } from "@/components/Button";
+import { IconQr, IconPrinter, IconUser } from "@/components/icons";
 
 const LABELS: Record<string, string> = {
   RAMASSE: "Ramassé",
@@ -110,22 +111,25 @@ export default function DetailColisPage() {
           <Link
             href={`/track/${numero}`}
             target="_blank"
-            className="px-4 py-2 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 text-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 text-sm"
           >
-            📱 QR / Suivi
+            <IconQr size={18} strokeWidth={2} />
+            QR / Suivi
           </Link>
           <Link
             href={`/admin/colis/${numero}/etiquette`}
-            className="px-4 py-2 bg-gold text-primary font-semibold rounded-xl hover:bg-gold-dark text-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gold text-primary font-semibold rounded-xl hover:bg-gold-dark text-sm"
           >
-            🖨 Étiquette
+            <IconPrinter size={18} strokeWidth={2} />
+            Étiquette
           </Link>
           {colis.id_client != null && Number(colis.id_client) > 0 && (
             <Link
               href={`/client/${colis.id_client}`}
-              className="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 text-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 text-sm"
             >
-              👤 Fiche client
+              <IconUser size={18} strokeWidth={2} />
+              Fiche client
             </Link>
           )}
         </div>

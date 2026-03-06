@@ -8,7 +8,7 @@ import { Card } from "./Card";
 import { Timeline } from "./Timeline";
 import { Button } from "./Button";
 import Link from "next/link";
-import { IconBox, IconWarehouse, IconBoat, IconAnchor, IconCheck } from "./icons";
+import { IconBox, IconWarehouse, IconBoat, IconAnchor, IconCheckCircle, IconQr } from "./icons";
 import { MICRO_COPY } from "@/data/microCopy";
 
 interface TrackingResultProps {
@@ -29,7 +29,7 @@ const ETAPES = [
   { key: "EN_CONTENEUR", icon: <IconWarehouse size={20} strokeWidth={2} />, label: "Conteneur" },
   { key: "PARTI", icon: <IconBoat size={20} strokeWidth={2} />, label: "En transit" },
   { key: "ARRIVE", icon: <IconAnchor size={20} strokeWidth={2} />, label: "À Douala" },
-  { key: "LIVRE", icon: <IconCheck size={20} strokeWidth={2.5} />, label: "Livré" },
+  { key: "LIVRE", icon: <IconCheckCircle size={20} strokeWidth={2} />, label: "Livré" },
 ] as const;
 
 function getProgressPercent(statut: string): number {
@@ -61,12 +61,12 @@ export function TrackingResult({ shipment, enableAnimations = true }: TrackingRe
               <div key={etape.key} className="flex items-center flex-1 min-w-0">
                 <div className="flex flex-col items-center flex-1">
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-xl border-2 transition-all ${
-                      etat === "done"
-                        ? "bg-primary border-primary text-white"
-                        : etat === "active"
-                        ? "bg-white border-primary ring-4 ring-primary/20"
-                        : "bg-gray-100 border-gray-200 opacity-50"
+                    className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
+                      etat === "active"
+                        ? "bg-primary border-primary text-white ring-4 ring-primary/20"
+                        : etat === "done"
+                        ? "bg-primary/10 border-primary text-primary"
+                        : "bg-gray-100 border-gray-200 text-gray-400"
                     }`}
                   >
                     {etape.icon}
@@ -181,7 +181,10 @@ export function TrackingResult({ shipment, enableAnimations = true }: TrackingRe
             <QRCodeSVG value={getTrackUrl(shipment.numero_suivi)} size={120} level="M" />
           </div>
           <div>
-            <h3 className="font-bold text-primary mb-2">📱 QR code de suivi</h3>
+            <h3 className="font-bold text-primary mb-2 flex items-center gap-2">
+              <IconQr size={20} strokeWidth={2} />
+              QR code de suivi
+            </h3>
             <p className="text-sm text-gray-600 mb-2">
               Scannez ou partagez ce QR code pour consulter le statut de votre colis à tout moment.
             </p>

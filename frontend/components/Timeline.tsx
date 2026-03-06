@@ -7,7 +7,7 @@ import {
   IconWarehouse,
   IconBoat,
   IconAnchor,
-  IconCheck,
+  IconCheckCircle,
 } from "./icons";
 
 interface TimelineProps {
@@ -20,7 +20,7 @@ const STATUT_ICONS: Record<string, React.ReactNode> = {
   EN_CONTENEUR: <IconWarehouse size={18} strokeWidth={2} />,
   PARTI: <IconBoat size={18} strokeWidth={2} />,
   ARRIVE: <IconAnchor size={18} strokeWidth={2} />,
-  LIVRE: <IconCheck size={18} strokeWidth={2.5} />,
+  LIVRE: <IconCheckCircle size={18} strokeWidth={2} />,
 };
 
 export function Timeline({ events, enableAnimations = true }: TimelineProps) {

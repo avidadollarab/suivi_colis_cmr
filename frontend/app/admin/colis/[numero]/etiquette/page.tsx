@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { apiAdminColisDetail, getTrackUrl } from "@/data/api";
+import { IconPrinter, IconQr } from "@/components/icons";
 
 export default function EtiquettePage() {
   const params = useParams();
@@ -56,15 +57,17 @@ export default function EtiquettePage() {
       <div className="no-print flex gap-3 mb-6 flex-wrap">
         <button
           onClick={handlePrint}
-          className="px-5 py-2.5 bg-gold text-primary font-semibold rounded-xl hover:bg-gold-dark"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gold text-primary font-semibold rounded-xl hover:bg-gold-dark"
         >
-          🖨 Imprimer
+          <IconPrinter size={18} strokeWidth={2} />
+          Imprimer
         </button>
         <Link
           href={`/track/${numero}`}
-          className="px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90"
         >
-          📱 Suivi / Scan
+          <IconQr size={18} strokeWidth={2} />
+          Suivi / Scan
         </Link>
         <Link
           href={`/admin/colis/${numero}`}
@@ -80,7 +83,7 @@ export default function EtiquettePage() {
           <div className="bg-primary text-white px-4 py-3 flex justify-between items-center">
             <div>
               <div className="font-bold text-white">ELISÉE <span className="text-gold">XPRESS</span> LOG</div>
-              <div className="text-white/70 text-xs">🇪🇺 Europe → 🇨🇲 Cameroun</div>
+              <div className="text-white/70 text-xs">Europe → Cameroun</div>
             </div>
             <div className="font-mono font-bold text-gold bg-gold/20 px-3 py-1 rounded-lg">
               {numero}
@@ -89,12 +92,12 @@ export default function EtiquettePage() {
           <div className="grid grid-cols-[1fr,120px]">
             <div className="p-4 space-y-3">
               <div>
-                <div className="text-[10px] font-bold uppercase text-gray-500">📤 Expéditeur</div>
+                <div className="text-[10px] font-bold uppercase text-gray-500">Expéditeur</div>
                 <div className="font-bold text-sm">{String(c.client_prenom || "")} {String(c.client_nom || "")}</div>
                 <div className="text-xs text-gray-600">{String(c.client_tel || "")}</div>
               </div>
               <div>
-                <div className="text-[10px] font-bold uppercase text-gray-500">📍 Destinataire</div>
+                <div className="text-[10px] font-bold uppercase text-gray-500">Destinataire</div>
                 <div className="font-bold text-sm">{String(c.dest_prenom || "")} {String(c.dest_nom || "")}</div>
                 <div className="text-xs text-gray-600">
                   {String(c.dest_ville || "")}
@@ -103,11 +106,11 @@ export default function EtiquettePage() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="text-[10px] font-bold uppercase text-gray-500">📦 Contenu</div>
+                  <div className="text-[10px] font-bold uppercase text-gray-500">Contenu</div>
                   <div className="text-xs font-semibold">{String(c.description || "")}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold uppercase text-gray-500">⚖️ Poids / Pièces</div>
+                  <div className="text-[10px] font-bold uppercase text-gray-500">Poids / Pièces</div>
                   <div className="text-xs font-semibold">
                     {c.poids_kg != null ? String(c.poids_kg) : "—"} kg · {c.nombre_pieces != null ? Number(c.nombre_pieces) : 1} pcs
                   </div>
@@ -115,7 +118,7 @@ export default function EtiquettePage() {
               </div>
             </div>
             <div className="border-l-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center p-2">
-              <div className="text-[10px] font-bold uppercase text-primary mb-1">📱 SCAN SUIVI</div>
+              <div className="text-[10px] font-bold uppercase text-primary mb-1">SCAN SUIVI</div>
               <QRCodeSVG value={trackUrl} size={90} level="M" />
               <div className="text-[10px] text-gray-500 mt-1">Agent ou client</div>
             </div>
@@ -129,7 +132,7 @@ export default function EtiquettePage() {
         {/* Talon client */}
         <div className="border-2 border-gold rounded-xl overflow-hidden bg-white">
           <div className="bg-gold text-primary px-4 py-2 flex justify-between items-center">
-            <span className="font-bold text-sm">✂ TALON CLIENT — À conserver</span>
+            <span className="font-bold text-sm">TALON CLIENT — À conserver</span>
             <span className="font-mono font-bold text-sm">{numero}</span>
           </div>
           <div className="grid grid-cols-[1fr,90px] p-4 gap-4 items-center">

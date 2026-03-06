@@ -8,6 +8,9 @@ import type { Shipment } from "@/data/mockShipments";
 import { TrackingResult } from "@/components/TrackingResult";
 import { Button } from "@/components/Button";
 import { Logo } from "@/components/Logo";
+import { StatusIcon } from "@/components/StatusIcon";
+import { IconUser } from "@/components/icons";
+import type { ShipmentStatus } from "@/components/StatusIcon";
 
 const LABELS: Record<string, string> = {
   RAMASSE: "Ramassé",
@@ -17,12 +20,12 @@ const LABELS: Record<string, string> = {
   LIVRE: "Livré",
 };
 
-const STATUTS = [
-  { code: "RAMASSE", emoji: "📦", label: "Ramassé" },
-  { code: "EN_CONTENEUR", emoji: "🏭", label: "En conteneur" },
-  { code: "PARTI", emoji: "🚢", label: "Parti" },
-  { code: "ARRIVE", emoji: "⚓", label: "Arrivé Douala" },
-  { code: "LIVRE", emoji: "✅", label: "Livré" },
+const STATUTS: { code: ShipmentStatus; label: string }[] = [
+  { code: "RAMASSE", label: "Ramassé" },
+  { code: "EN_CONTENEUR", label: "En conteneur" },
+  { code: "PARTI", label: "Parti" },
+  { code: "ARRIVE", label: "Arrivé Douala" },
+  { code: "LIVRE", label: "Livré" },
 ];
 
 export default function TrackPage() {
@@ -121,7 +124,10 @@ export default function TrackPage() {
             </Link>
             <div className="flex items-center gap-4">
               {isAgent && (
-                <span className="text-sm text-gray-600">👤 {agent.nom}</span>
+                <span className="text-sm text-gray-600 flex items-center gap-1.5">
+                  <IconUser size={16} strokeWidth={2} />
+                  {agent.nom}
+                </span>
               )}
               <Link href="/" className="text-sm text-primary font-medium hover:underline">
                 Accueil
@@ -147,26 +153,36 @@ export default function TrackPage() {
 
         {isAgent && (
           <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-primary mb-4">🔄 Mettre à jour le statut</h2>
+            <h2 className="text-lg font-bold text-primary mb-4">Mettre à jour le statut</h2>
             <form onSubmit={handleUpdateStatut} className="space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                {STATUTS.map((s) => (
-                  <button
-                    key={s.code}
-                    type="button"
-                    onClick={() => setSelectedStatut(s.code)}
-                    className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition ${
-                      selectedStatut === s.code
-                        ? "border-gold bg-gold/10"
-                        : shipment.statut === s.code
-                        ? "border-green-300 bg-green-50"
-                        : "border-gray-200 hover:border-primary/30"
-                    }`}
-                  >
-                    <span className="text-2xl">{s.emoji}</span>
-                    <span className="text-xs font-semibold">{s.label}</span>
-                  </button>
-                ))}
+                {STATUTS.map((s) => {
+                  const isSelected = selectedStatut === s.code;
+                  const isCurrent = shipment.statut === s.code;
+                  const isPast = ["RAMASSE", "EN_CONTENEUR", "PARTI", "ARRIVE", "LIVRE"].indexOf(shipment.statut) > ["RAMASSE", "EN_CONTENEUR", "PARTI", "ARRIVE", "LIVRE"].indexOf(s.code);
+                  return (
+                    <button
+                      key={s.code}
+                      type="button"
+                      onClick={() => setSelectedStatut(s.code)}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition ${
+                        isSelected
+                          ? "border-primary bg-primary text-white"
+                          : isCurrent
+                          ? "border-primary bg-primary/10 text-primary"
+                          : isPast
+                          ? "border-primary/30 bg-primary/5 text-primary"
+                          : "border-gray-200 text-gray-500 hover:border-primary/30 hover:text-gray-700"
+                      }`}
+                      aria-label={`Statut : ${s.label}`}
+                    >
+                      <span className={`w-8 h-8 flex items-center justify-center ${isSelected ? "text-white" : ""}`}>
+                        <StatusIcon status={s.code} size={20} completed={isPast} active={isCurrent || isSelected} />
+                      </span>
+                      <span className="text-xs font-semibold">{s.label}</span>
+                    </button>
+                  );
+                })}
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { apiClient } from "@/data/api";
 import { Button } from "@/components/Button";
 import { Logo } from "@/components/Logo";
+import { IconDocument, IconPhone, IconMail, IconLocation, IconBox, IconInbox, IconPlus } from "@/components/icons";
 
 const LABELS: Record<string, string> = {
   RAMASSE: "Ramassé",
@@ -85,7 +86,10 @@ export default function FicheClientPage() {
       </header>
 
       <main className="container mx-auto px-4 max-w-2xl py-8">
-        <h1 className="text-xl font-bold text-primary mb-6">📋 Fiche client</h1>
+        <h1 className="text-xl font-bold text-primary mb-6 flex items-center gap-2">
+          <IconDocument size={22} strokeWidth={2} />
+          Fiche client
+        </h1>
 
         <div
           className="rounded-2xl p-6 mb-8 text-white"
@@ -101,10 +105,21 @@ export default function FicheClientPage() {
             {String(client.prenom || "")} {String(client.nom || "")}
           </div>
           <div className="text-white/70 text-sm mt-2 space-y-1">
-            <p>📱 {String(client.telephone || "")}</p>
-            {client.email != null && client.email !== "" && <p>✉️ {String(client.email)}</p>}
+            <p className="flex items-center gap-2">
+              <IconPhone size={16} strokeWidth={2} className="text-white/90 shrink-0" />
+              {String(client.telephone || "")}
+            </p>
+            {client.email != null && client.email !== "" && (
+              <p className="flex items-center gap-2">
+                <IconMail size={16} strokeWidth={2} className="text-white/90 shrink-0" />
+                {String(client.email)}
+              </p>
+            )}
             {(client.adresse_europe != null && client.adresse_europe !== "") || (client.ville_europe != null && client.ville_europe !== "") ? (
-              <p>📍 {[client.adresse_europe, client.ville_europe].filter((x) => x != null && x !== "").map(String).join(", ")}</p>
+              <p className="flex items-center gap-2">
+                <IconLocation size={16} strokeWidth={2} className="text-white/90 shrink-0" />
+                {[client.adresse_europe, client.ville_europe].filter((x) => x != null && x !== "").map(String).join(", ")}
+              </p>
             ) : null}
           </div>
           <div className="flex gap-6 mt-6 pt-4 border-t border-white/20">
@@ -123,7 +138,10 @@ export default function FicheClientPage() {
           </div>
         </div>
 
-        <h2 className="text-lg font-bold text-primary mb-4">📦 Historique des colis</h2>
+        <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+          <IconBox size={20} strokeWidth={2} />
+          Historique des colis
+        </h2>
 
         {colis.length > 0 ? (
           <div className="space-y-3">
@@ -139,8 +157,9 @@ export default function FicheClientPage() {
                   <div>
                     <div className="font-mono font-bold text-primary">{String(c.numero_suivi)}</div>
                     <div className="font-semibold text-gray-900 mt-1">{String(c.description || "")}</div>
-                    <div className="text-sm text-gray-600 mt-0.5">
-                      📍 {String(c.dest_prenom || "")} {String(c.dest_nom || "")} · {String(c.dest_ville || "")}
+                    <div className="text-sm text-gray-600 mt-0.5 flex items-center gap-1.5">
+                      <IconLocation size={14} strokeWidth={2} className="shrink-0 text-gray-500" />
+                      {String(c.dest_prenom || "")} {String(c.dest_nom || "")} · {String(c.dest_ville || "")}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
                       Créé le {String((c.date_creation || "").toString().slice(0, 10))}
@@ -159,15 +178,18 @@ export default function FicheClientPage() {
           </div>
         ) : (
           <div className="text-center py-12 bg-white rounded-xl border-2 border-gray-100">
-            <div className="text-4xl mb-4">📭</div>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 text-gray-400 mb-4">
+              <IconInbox size={32} strokeWidth={1.5} />
+            </div>
             <p className="text-gray-600">Aucun colis enregistré pour ce client.</p>
           </div>
         )}
 
         <div className="mt-8">
           <Link href={`/admin/colis/nouveau?client_id=${clientId}`}>
-            <Button variant="primary" size="lg">
-              ➕ Nouveau colis pour ce client
+            <Button variant="primary" size="lg" className="inline-flex items-center gap-2">
+              <IconPlus size={20} strokeWidth={2} />
+              Nouveau colis pour ce client
             </Button>
           </Link>
         </div>
