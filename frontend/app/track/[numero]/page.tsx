@@ -156,8 +156,8 @@ export default function TrackPage() {
           <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
             <h2 className="text-base sm:text-lg font-bold text-primary mb-4">Mettre à jour le statut</h2>
             <form onSubmit={handleUpdateStatut} className="space-y-4">
-              {/* Mobile: grille 2 colonnes. Desktop: 5 colonnes */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-2">
+              {/* status-grid: Mobile 2 cols (dernier centré). Desktop 5 colonnes. Voir globals.css .status-grid */}
+              <div className="status-grid">
                 {STATUTS.map((s) => {
                   const isSelected = selectedStatut === s.code;
                   const isCurrent = shipment.statut === s.code;
@@ -167,7 +167,7 @@ export default function TrackPage() {
                       key={s.code}
                       type="button"
                       onClick={() => setSelectedStatut(s.code)}
-                      className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition btn-glow ${
+                      className={`status-grid-btn flex flex-col items-center gap-1 sm:gap-1.5 p-2.5 sm:p-3 rounded-xl border-2 transition btn-glow ${
                         isSelected
                           ? "border-primary bg-primary text-white"
                           : isCurrent

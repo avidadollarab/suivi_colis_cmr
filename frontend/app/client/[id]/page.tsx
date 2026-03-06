@@ -7,6 +7,8 @@ import { apiClient } from "@/data/api";
 import { Button } from "@/components/Button";
 import { Logo } from "@/components/Logo";
 import { IconDocument, IconPhone, IconMail, IconLocation, IconBox, IconInbox, IconPlus } from "@/components/icons";
+import { StatusIcon } from "@/components/StatusIcon";
+import type { ShipmentStatus } from "@/components/StatusIcon";
 
 const LABELS: Record<string, string> = {
   RAMASSE: "Ramassé",
@@ -144,35 +146,52 @@ export default function FicheClientPage() {
         </h2>
 
         {colis.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-3 shipments-list">
             {colis.map((c) => (
               <Link
                 key={String(c.numero_suivi)}
                 href={`/track/${c.numero_suivi}`}
-                className={`block bg-white rounded-xl border-2 p-4 hover:border-gold transition ${
+                className={`shipment-card block bg-white rounded-xl border-2 p-4 hover:border-gold transition ${
                   c.statut === "LIVRE" ? "border-l-4 border-l-green-500" : "border-l-4 border-l-blue-500"
                 }`}
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-mono font-bold text-primary">{String(c.numero_suivi)}</div>
-                    <div className="font-semibold text-gray-900 mt-1">{String(c.description || "")}</div>
-                    <div className="text-sm text-gray-600 mt-0.5 flex items-center gap-1.5">
-                      <IconLocation size={14} strokeWidth={2} className="shrink-0 text-gray-500" />
-                      {String(c.dest_prenom || "")} {String(c.dest_nom || "")} · {String(c.dest_ville || "")}
+                <div className="shipment-card-header flex justify-between items-start md:flex-row">
+                  <div className="min-w-0 flex-1">
+                    <div className="shipment-id font-mono font-bold text-primary">{String(c.numero_suivi)}</div>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="w-6 h-6 flex items-center justify-center shrink-0 text-primary">
+                        <StatusIcon status={(c.statut as ShipmentStatus) || "RAMASSE"} size={18} />
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded-lg text-xs font-medium ${
+                          COULEURS[String(c.statut || "")] || "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {LABELS[String(c.statut || "")] || String(c.statut)}
+                      </span>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Créé le {String((c.date_creation || "").toString().slice(0, 10))}
+                    <div className="shipment-destination text-sm text-gray-600 mt-1 flex items-center gap-1.5">
+                      <IconLocation size={14} strokeWidth={2} className="shrink-0 text-gray-500" />
+                      {String(c.dest_ville || "")}
+                      {c.dest_prenom || c.dest_nom ? ` · ${String(c.dest_prenom || "")} ${String(c.dest_nom || "")}` : ""}
+                    </div>
+                    <div className="shipment-date text-xs text-gray-500 mt-0.5">
+                      {String((c.date_creation || "").toString().slice(0, 10))}
                     </div>
                   </div>
                   <span
-                    className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                    className={`hidden md:inline-block px-2 py-1 rounded-lg text-xs font-medium shrink-0 ml-2 ${
                       COULEURS[String(c.statut || "")] || "bg-gray-100 text-gray-800"
                     }`}
                   >
                     {LABELS[String(c.statut || "")] || String(c.statut)}
                   </span>
                 </div>
+                <span className="shipment-details-btn mt-3 block w-full md:w-auto">
+                  <span className="inline-flex items-center justify-center w-full md:w-auto px-4 py-2.5 rounded-xl bg-primary/10 text-primary font-semibold text-sm hover:bg-primary/20 transition btn-glow min-h-[44px]">
+                    Voir le détail
+                  </span>
+                </span>
               </Link>
             ))}
           </div>

@@ -126,7 +126,7 @@ export function HeroBanner({ enableAnimations = true }: HeroBannerProps) {
             delay: CASCADE_DELAY / 1000,
             ease: [0.25, 0.46, 0.45, 0.94],
           }}
-          className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4"
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4"
         >
           Votre colis entre de bonnes mains,{" "}
           <span className="text-gold">garanti</span>.

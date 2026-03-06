@@ -33,7 +33,7 @@
   }
 
   body {
-    @apply antialiased text-gray-800 bg-white;
+    @apply antialiased text-gray-800 bg-white overflow-x-hidden;
   }
 
   /* Typographie : line-height confortable pour les textes descriptifs */
@@ -198,5 +198,97 @@
     .badge-depart {
       font-size: 16px;
     }
+  }
+
+  /* ===== RESPONSIVE MOBILE (max-width: 768px) — Ajuster ici ===== */
+  @media (max-width: 768px) {
+    /* Grille statuts : 2 colonnes, 3 lignes, dernier bouton centré */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .status-grid .status-grid-btn:last-child {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: calc(50% - 0.375rem);
+    }
+  }
+  @media (min-width: 769px) {
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+  }
+
+  /* Bouton Nouvelle recherche — mobile : pleine largeur, marges 16px */
+  .search-again-wrapper {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  @media (max-width: 768px) {
+    .search-again-wrapper .search-again-btn {
+      width: 100%;
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+      padding-top: 0.875rem;
+      padding-bottom: 0.875rem;
+      display: block;
+      text-align: center;
+    }
+  }
+
+  /* Sections : padding 16px sur mobile */
+  .mobile-px {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* Textes description : interligne mobile */
+  .text-desc-mobile {
+    line-height: 1.6;
+  }
+
+  /* Overflow horizontal évité */
+  .overflow-x-safe {
+    overflow-x: hidden;
+  }
+
+}
+
+/* Cartes historique colis — mobile (max-width: 768px). Desktop : layout existant. */
+@media (max-width: 768px) {
+  .shipments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .shipment-card {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  .shipment-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .shipment-id {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .shipment-destination,
+  .shipment-date {
+    font-size: 0.85rem;
+  }
+  .shipment-details-btn {
+    margin-top: 0.5rem;
+    width: 100%;
   }
 }
