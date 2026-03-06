@@ -898,3 +898,9 @@ if __name__ == "__main__":
 
 # Point d'entree Gunicorn
 initialiser()
+# Seed des 26 clients fidèles (idempotent, ignore les doublons)
+try:
+    from seed_clients import run as seed_run
+    seed_run()
+except Exception as e:
+    print(f"Seed clients (ignoré): {e}")
