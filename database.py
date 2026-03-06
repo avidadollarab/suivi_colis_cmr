@@ -427,6 +427,37 @@ def tous_les_clients():
     return result
 
 
+def rechercher_clients(query, limit=50):
+    """
+    Recherche clients par nom, prénom ou téléphone.
+    Insensible à la casse, tolérant aux espaces.
+    Schéma table clients : id, nom, prenom, telephone, email, adresse_europe, ville_europe, pays_europe
+    Si ton schéma diffère (ex. first_name, last_name, phone), adapte les noms de colonnes.
+    """
+    q = (query or "").strip()
+    if not q:
+        return tous_les_clients()
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    ph = p()
+    # Pattern : %query% pour LIKE (insensible à la casse)
+    pattern = f"%{q}%"
+
+    cursor.execute(f"""
+        SELECT * FROM clients
+        WHERE LOWER(nom) LIKE LOWER({ph})
+           OR LOWER(prenom) LIKE LOWER({ph})
+           OR telephone LIKE {ph}
+        ORDER BY nom, prenom
+        LIMIT {limit}
+    """, (pattern, pattern, pattern))
+
+    result = fetchall(cursor)
+    conn.close()
+    return result
+
+
 def get_client_by_id(client_id):
     """Retourne un client par son id (pour pré-remplissage formulaire)."""
     conn = get_connection()

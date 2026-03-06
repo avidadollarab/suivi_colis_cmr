@@ -20,6 +20,7 @@ from database import (
     ajouter_client, ajouter_destinataire,
     enregistrer_colis, mettre_a_jour_statut, consulter_colis,
     tous_les_colis, tous_les_clients, tous_les_destinataires,
+    rechercher_clients,
     get_agent, marquer_paye,
     get_client_by_id, get_colis_by_client
 )
@@ -387,8 +388,15 @@ def api_admin_colis_paiement(numero_suivi):
 @app.route("/api/admin/clients")
 @_api_require_auth
 def api_admin_clients():
-    """Liste des clients (pour formulaire nouveau colis)."""
-    clients = tous_les_clients()
+    """
+    Liste des clients. Si ?query=... est fourni, recherche par nom/prénom/téléphone.
+    Limite : 50 résultats (modifiable dans rechercher_clients).
+    """
+    query = request.args.get("query", "").strip()
+    if query:
+        clients = rechercher_clients(query, limit=50)
+    else:
+        clients = tous_les_clients()
     return jsonify({"clients": clients})
 
 

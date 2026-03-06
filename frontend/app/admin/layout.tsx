@@ -74,6 +74,12 @@ export default function AdminLayout({
               >
                 Nouveau colis
               </Link>
+              <Link
+                href="/admin/clients"
+                className={`font-medium ${pathname === "/admin/clients" ? "text-primary" : "text-gray-600 hover:text-primary"}`}
+              >
+                Clients
+              </Link>
               <Link href="/" className="text-gray-600 hover:text-primary text-sm">
                 Site public
               </Link>

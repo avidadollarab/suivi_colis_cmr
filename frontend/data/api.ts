@@ -107,8 +107,11 @@ export async function apiAdminColisPaiement(numero: string) {
   return res.json();
 }
 
-export async function apiAdminClients() {
-  const res = await fetch(`${API_BASE}/api/admin/clients`, { headers: authHeaders() });
+export async function apiAdminClients(query?: string) {
+  const url = query
+    ? `${API_BASE}/api/admin/clients?query=${encodeURIComponent(query)}`
+    : `${API_BASE}/api/admin/clients`;
+  const res = await fetch(url, { headers: authHeaders() });
   if (res.status === 401) throw new Error("Non autorisé");
   if (!res.ok) throw new Error("Erreur");
   return (await res.json()).clients;
