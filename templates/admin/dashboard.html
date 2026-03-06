@@ -58,6 +58,11 @@
 {% endblock %}
 
 {% block content %}
+{% if not twilio_ok %}
+<div class="alert alert-warning" style="margin-bottom:1rem;">
+    ⚠️ <strong>SMS/WhatsApp non configurés.</strong> Aucune notification n'est envoyée. Ajoutez TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_SMS_FROM, TWILIO_WA_FROM dans Environment sur Render. Voir NOTIFICATIONS_RENDER.md.
+</div>
+{% endif %}
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
     <h1 style="font-size:1.6rem;">⚙️ Tableau de bord</h1>
     <span style="color:#718096; font-size:0.9rem;">👤 {{ session.agent_nom }}</span>

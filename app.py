@@ -21,7 +21,7 @@ from database import (
     get_agent, marquer_paye,
     get_client_by_id, get_colis_by_client
 )
-from notifications import envoyer_notifications, apercu_message
+from notifications import envoyer_notifications, apercu_message, twilio_configure
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "cmr-suivi-secret-local-2024")
@@ -154,7 +154,8 @@ def admin_dashboard():
     }
     return render_template("admin/dashboard.html",
                            colis=colis, stats=stats,
-                           labels=LABELS_STATUT, couleurs=COULEURS_STATUT)
+                           labels=LABELS_STATUT, couleurs=COULEURS_STATUT,
+                           twilio_ok=twilio_configure())
 
 
 @app.route("/admin/colis/nouveau", methods=["GET", "POST"])
@@ -270,6 +271,10 @@ def changer_statut(numero_suivi):
                 nb = resultats["sms"] + resultats["whatsapp"] + resultats["simules"]
                 if nb > 0:
                     flash(f"📱 {nb} notification(s) envoyee(s) au client et destinataire.", "info")
+                elif not twilio_configure():
+                    flash("⚠️ SMS/WhatsApp non configurés. Ajoutez TWILIO_* sur Render (voir GUIDE_TWILIO.md)", "warning")
+                elif resultats.get("erreurs", 0) > 0:
+                    flash("⚠️ Statut mis à jour mais erreur lors de l'envoi des notifications.", "warning")
             except Exception as e:
                 flash(f"⚠️ Statut mis a jour mais erreur notifications : {e}", "warning")
         # ----------------------------------------------------------
@@ -338,6 +343,8 @@ def track_changer_statut(tracking_id):
                 nb = resultats["sms"] + resultats["whatsapp"] + resultats["simules"]
                 if nb > 0:
                     flash(f"📱 {nb} notification(s) envoyee(s).", "info")
+                elif not twilio_configure():
+                    flash("⚠️ SMS/WhatsApp non configurés. Ajoutez TWILIO_* sur Render.", "warning")
             except Exception as e:
                 flash(f"⚠️ Notifications : {e}", "warning")
     else:

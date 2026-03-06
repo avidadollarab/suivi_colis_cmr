@@ -103,6 +103,39 @@ MESSAGES_DESTINATAIRE = {
 # INITIALISATION TWILIO
 # ----------------------------------------------------------
 
+def twilio_configure():
+    """Retourne True si Twilio est configuré pour envoi réel."""
+    sid = os.environ.get("TWILIO_ACCOUNT_SID")
+    tok = os.environ.get("TWILIO_AUTH_TOKEN")
+    sms = os.environ.get("TWILIO_SMS_FROM")
+    wa = os.environ.get("TWILIO_WA_FROM")
+    return bool(sid and tok and (sms or wa))
+
+
+def _normaliser_tel(tel):
+    """Normalise un numéro de téléphone pour Twilio (format E.164)."""
+    if not tel:
+        return ""
+    tel = str(tel).replace(" ", "").replace("-", "").replace(".", "").strip()
+    if not tel:
+        return ""
+    if tel.startswith("+"):
+        return tel
+    if tel.startswith("00"):
+        return "+" + tel[2:]
+    if tel.startswith("33") and len(tel) == 11:
+        return "+" + tel
+    if tel.startswith("237") and len(tel) >= 12:
+        return "+" + tel
+    if tel.startswith("0") and len(tel) == 10:
+        return "+33" + tel[1:]
+    if tel.startswith("6") and len(tel) == 9 and tel.isdigit():
+        return "+237" + tel
+    if len(tel) == 9 and tel.isdigit():
+        return "+33" + tel
+    return "+" + tel if tel.startswith("3") or tel.startswith("2") else tel
+
+
 def _get_twilio_client():
     """
     Retourne un client Twilio si les variables sont configurées.
@@ -214,6 +247,10 @@ def envoyer_notifications(numero_suivi, nouveau_statut,
     # Envoie les messages
     # ----------------------------------------------------------
     for (qui, telephone, texte) in envois:
+        telephone = _normaliser_tel(telephone)
+        if not telephone or not telephone.startswith("+"):
+            print(f"[NOTIF] ⚠️ Numéro invalide ignoré : {telephone}")
+            continue
 
         if mode_simulation:
             # Mode simulation : affiche le message sans l'envoyer
