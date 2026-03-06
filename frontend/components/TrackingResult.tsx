@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { QRCodeSVG } from "qrcode.react";
 import type { Shipment } from "@/data/mockShipments";
+import { getTrackUrl } from "@/data/api";
 import { Card } from "./Card";
 import { Timeline } from "./Timeline";
 import { Button } from "./Button";
@@ -171,6 +173,24 @@ export function TrackingResult({ shipment, enableAnimations = true }: TrackingRe
           <Timeline events={shipment.historique} enableAnimations={enableAnimations} />
         </Card>
       </div>
+
+      {/* QR code suivi client — visible à chaque consultation */}
+      <Card className="!p-6">
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="flex-shrink-0 p-4 bg-gray-50 rounded-xl">
+            <QRCodeSVG value={getTrackUrl(shipment.numero_suivi)} size={120} level="M" />
+          </div>
+          <div>
+            <h3 className="font-bold text-primary mb-2">📱 QR code de suivi</h3>
+            <p className="text-sm text-gray-600 mb-2">
+              Scannez ou partagez ce QR code pour consulter le statut de votre colis à tout moment.
+            </p>
+            <p className="text-xs text-gray-500 font-mono break-all">
+              {getTrackUrl(shipment.numero_suivi)}
+            </p>
+          </div>
+        </div>
+      </Card>
 
       <div className="text-center">
         <Link href="/">
